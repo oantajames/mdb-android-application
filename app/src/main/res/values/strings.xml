@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">New.m</string>
+
+    <string name="filter">Filter</string>
+    <string name="action_most_popular">Most Popular</string>
+    <string name="action_top_rated">Top Rated</string>
+</resources>

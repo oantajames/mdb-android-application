@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:icon="@drawable/ic_action_name"
+        android:title="@string/filter"
+        app:showAsAction="ifRoom">
+
+        <menu>
+            <item
+                android:id="@+id/actionSortMostPopular"
+                android:title="@string/action_most_popular"/>
+
+            <item
+                android:id="@+id/actionSortTopRated"
+                android:title="@string/action_top_rated"/>
+
+        </menu>
+
+    </item>
+
+</menu>
