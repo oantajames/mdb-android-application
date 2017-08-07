@@ -17,9 +17,12 @@ public class RetrofitLoaderManager {
 
             @Override
             public void onLoadFinished(Loader<Response<D>> loader, Response<D> data) {
-                if (data.hasError()) {
-                    callback.onFailure(data.getException());
-
+                if (data.hasError() && data.getResult() == null) {
+                    if (data.getResult() == null) {
+                        callback.onFailure(null, "Data is null");
+                    } else {
+                        callback.onFailure(data.getException(), null);
+                    }
                 } else {
                     callback.onSuccess(data.getResult());
                 }

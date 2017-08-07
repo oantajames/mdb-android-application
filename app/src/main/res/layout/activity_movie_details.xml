@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/tools"
+    android:id="@+id/main_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:background="@android:color/darker_gray"
+            fresco:scaleType="centerCrop"/>
+
+        <ImageView
+            android:id="@+id/backdrop_gradient_view"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_alignBottom="@+id/header"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/gradient"/>
+
+        <include
+            layout="@layout/item_movie_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/header"
+            android:layout_alignParentStart="true"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="13dp">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="180dp"
+            android:layout_height="250dp"
+            card_view:cardCornerRadius="10dp"
+            card_view:cardElevation="3dp"
+            >
+
+            <ImageView
+                android:id="@+id/movie_poster"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:background="@android:color/darker_gray"
+                android:scaleType="centerCrop"
+                />
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/movie_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="13dp"
+            android:text="@string/movie_description_default"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

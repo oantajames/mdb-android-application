@@ -2,11 +2,10 @@ package com.newm.di.module;
 
 import com.newm.di.component.PerActivity;
 import com.newm.loaders.MoviesLoader;
-import com.newm.presenter.MoviesGridPresenter;
-import com.newm.presenter.MoviesGridPresenterImpl;
+import com.newm.presenter.moviesgrid.MoviesGridPresenter;
+import com.newm.presenter.moviesgrid.MoviesGridPresenterImpl;
 import dagger.Module;
 import dagger.Provides;
-import javax.inject.Singleton;
 
 /**
  * @author james on 7/24/17.

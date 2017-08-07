@@ -1,4 +1,4 @@
-package com.newm.presenter;
+package com.newm.presenter.moviesgrid;
 
 import android.app.LoaderManager;
 

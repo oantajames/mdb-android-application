@@ -15,8 +15,6 @@ import javax.inject.Singleton;
  */
 public class ImageLoader {
 
-    public ImageLoader() {
-    }
 
     private final PipelineDraweeControllerBuilder controllerBuilder = Fresco.newDraweeControllerBuilder();
     private final ImageRequestBuilder imageRequestBuilder = ImageRequestBuilder.newBuilderWithSource(Uri.EMPTY);
@@ -36,5 +34,4 @@ public class ImageLoader {
     private String buildUrl(String url) {
         return ApiConstants.BASE_IMAGE_URL + url;
     }
-
 }

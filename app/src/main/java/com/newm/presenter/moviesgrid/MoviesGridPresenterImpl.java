@@ -1,4 +1,4 @@
-package com.newm.presenter;
+package com.newm.presenter.moviesgrid;
 
 import android.app.LoaderManager;
 import android.util.Log;
@@ -6,13 +6,14 @@ import com.newm.data.api.MovieEntity;
 import com.newm.loaders.MoviesLoader;
 import com.newm.util.loader.Callback;
 import com.newm.util.loader.RetrofitLoaderManager;
-import com.newm.view.mostpopular.MoviesGridActivity;
+import com.newm.view.moviesgrid.MoviesGridActivity;
 import java.util.List;
 import javax.inject.Inject;
 
 /**
  * @author james on 7/18/17.
  */
+@SuppressWarnings("WeakerAccess")
 public class MoviesGridPresenterImpl implements MoviesGridPresenter, Callback<List<MovieEntity>> {
 
     private static final String TAG = MoviesGridPresenterImpl.class.getSimpleName();
@@ -38,9 +39,8 @@ public class MoviesGridPresenterImpl implements MoviesGridPresenter, Callback<Li
         RetrofitLoaderManager.restart(loaderManager, MoviesGridActivity.MOVIE_LOADER_ID, moviesLoader.getTopRatedMovies(), this);
     }
 
-
     @Override
-    public void onFailure(Exception ex) {
+    public void onFailure(Exception ex, String message) {
         Log.e(TAG, ex.getMessage());
     }
 

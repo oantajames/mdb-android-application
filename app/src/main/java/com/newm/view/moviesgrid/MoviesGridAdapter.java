@@ -1,18 +1,26 @@
-package com.newm.view.mostpopular;
+package com.newm.view.moviesgrid;
 
+import android.content.Context;
+import android.net.Uri;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.newm.R;
+import com.newm.data.api.ApiConstants;
 import com.newm.data.api.MovieEntity;
 import com.newm.loaders.ImageLoader;
+import com.newm.util.TranslateDraweeView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
 /**
  * @author james on 7/23/17.
@@ -23,9 +31,12 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
     private List<MovieEntity> movieEntities = new ArrayList<>();
     private MovieClickListener listener;
 
+    public MoviesGridAdapter(MovieClickListener listener) {
+        this.listener = listener;
+    }
 
     public interface MovieClickListener {
-        void movieClicked(long movieId, int position);
+        void movieClicked(MovieEntity movieEntity, ImageView moviePoster);
     }
 
     @Override
@@ -51,29 +62,36 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
         this.notifyDataSetChanged();
     }
 
+    public MovieEntity getMovieEntity(int position) {
+        if (movieEntities.get(position) == null) {
+            throw new IllegalArgumentException("Invalid position");
+        }
+        return movieEntities.get(position);
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageLoader imageLoader = new ImageLoader();
+        public ImageLoader imageLoader = new ImageLoader();
 
-        @Bind(R.id.grid_item)
-        SimpleDraweeView simpleDraweeView;
+        @Bind(R.id.movie_poster)
+        ImageView moviePoster;
+        private final Context context;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            context = itemView.getContext();
         }
 
         public void setMovieItem(final MovieEntity movieItem, final int position) {
-            imageLoader.loadImageToView(movieItem.getPosterPath(), simpleDraweeView);
-            simpleDraweeView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (listener == null) return;
-                    listener.movieClicked(movieItem.getId(), position);
-                }
+            ViewCompat.setTransitionName(moviePoster, getMovieEntity(position).getTitle());
+            Picasso.with(context)
+                    .load(Uri.parse(ApiConstants.BASE_IMAGE_URL + movieItem.getPosterPath()))
+                    .into(moviePoster);
+            moviePoster.setOnClickListener(v -> {
+                if (listener == null) return;
+                listener.movieClicked(movieItem, moviePoster);
             });
         }
-
     }
 }

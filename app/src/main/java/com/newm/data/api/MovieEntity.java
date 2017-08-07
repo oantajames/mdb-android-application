@@ -1,9 +1,11 @@
 package com.newm.data.api;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-public class MovieEntity {
+public class MovieEntity implements Parcelable {
     private String overview;
     @SerializedName("original_language")
     private String originalLanguage;
@@ -26,6 +28,56 @@ public class MovieEntity {
     private boolean adult;
     @SerializedName("vote_count")
     private int voteCount;
+
+    protected MovieEntity(Parcel in) {
+        overview = in.readString();
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
+        video = in.readInt() != 0;
+        title = in.readString();
+        posterPath = in.readString();
+        backdropPath = in.readString();
+        releaseDate = in.readString();
+        voteAverage = in.readDouble();
+        popularity = in.readDouble();
+        id = in.readInt();
+        adult = in.readByte() != 0;
+        voteCount = in.readInt();
+    }
+
+    public static final Creator<MovieEntity> CREATOR = new Creator<MovieEntity>() {
+        @Override
+        public MovieEntity createFromParcel(Parcel in) {
+            return new MovieEntity(in);
+        }
+
+        @Override
+        public MovieEntity[] newArray(int size) {
+            return new MovieEntity[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(overview);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeInt(video ? 1 : 0);
+        dest.writeString(title);
+        dest.writeString(posterPath);
+        dest.writeString(backdropPath);
+        dest.writeString(releaseDate);
+        dest.writeDouble(voteAverage);
+        dest.writeDouble(popularity);
+        dest.writeInt(id);
+        dest.writeInt(adult ? 1 : 0);
+        dest.writeInt(voteCount);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
     public void setOverview(String overview) {
         this.overview = overview;
@@ -159,4 +211,5 @@ public class MovieEntity {
                         ",vote_count = '" + voteCount + '\'' +
                         "}";
     }
+
 }

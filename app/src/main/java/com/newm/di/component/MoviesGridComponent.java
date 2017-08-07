@@ -1,12 +1,9 @@
 package com.newm.di.component;
 
-import android.content.Context;
 import com.newm.di.module.MoviesGridModule;
-import com.newm.loaders.MoviesLoader;
-import com.newm.presenter.MoviesGridPresenter;
-import com.newm.view.mostpopular.MoviesGridActivity;
+import com.newm.presenter.moviesgrid.MoviesGridPresenter;
+import com.newm.view.moviesgrid.MoviesGridActivity;
 import dagger.Component;
-import javax.inject.Singleton;
 
 
 /**

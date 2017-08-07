@@ -20,6 +20,7 @@ import javax.inject.Named;
  */
 
 public class NewmApplication extends Application {
+
     //todo - make app to not crash when there is no network https://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
 
     private ApplicationComponent applicationComponent;
