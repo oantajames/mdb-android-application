@@ -2,28 +2,26 @@ package com.newm.view.moviesgrid;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.newm.NewmApplication;
 import com.newm.R;
 import com.newm.data.api.MovieEntity;
 import com.newm.di.component.DaggerMoviesGridComponent;
 import com.newm.di.module.MoviesGridModule;
 import com.newm.presenter.moviesgrid.MoviesGridPresenter;
 import com.newm.presenter.moviesgrid.MoviesGridPresenterImpl;
-import com.newm.util.SharedPreferencesUtil;
 import com.newm.view.BaseActivity;
 import com.newm.view.moviedetails.MovieDetailsActivity;
 import java.util.List;
@@ -39,6 +37,11 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
 
     @Bind(R.id.movies_recycler_view)
     RecyclerView recyclerView;
+    @Bind(R.id.movie_grid_progress_bar)
+    ProgressBar progressBar;
+    @Bind(R.id.main_mogie_grid_background)
+    ViewGroup mainBackground;
+
     @Inject
     MoviesGridPresenter presenter;
 
@@ -52,18 +55,17 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        inject();
+        getSupportActionBar().setTitle(getString(R.string.action_most_popular));
+        initMovieGrid();
+    }
+
+    private void inject() {
         DaggerMoviesGridComponent moviesGridComponent = (DaggerMoviesGridComponent) DaggerMoviesGridComponent.builder()
                 .applicationComponent(getApplicationComponent())
                 .moviesGridModule(new MoviesGridModule())
                 .build();
         moviesGridComponent.inject(this);
-        initMovieGrid();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        retrieveMovieDetailsMainColor();
     }
 
     private void initMovieGrid() {
@@ -74,26 +76,10 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
         recyclerView.setAdapter(adapter);
     }
 
-    private void retrieveMovieDetailsMainColor() {
-        int detailsBackground = SharedPreferencesUtil.getInt(SharedPreferencesUtil.MOVIE_DETAILS_MAIN_COLOR, 0, this);
-        if (detailsBackground != 0) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(detailsBackground);
-            recyclerView.setBackgroundColor(detailsBackground);
-
-            Drawable currentBG = recyclerView.getBackground();
-            ColorDrawable newBG = new ColorDrawable(detailsBackground);
-            TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{currentBG, newBG});
-            transitionDrawable.setCrossFadeEnabled(true);
-            recyclerView.setBackgroundDrawable(transitionDrawable);
-            transitionDrawable.startTransition(1000);
-        }
-    }
-
     @Override
     public void setMoviesList(List<MovieEntity> result) {
         adapter.setMovieList(result);
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -106,9 +92,11 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.actionSortMostPopular:
+                progressBar.setVisibility(View.VISIBLE);
                 setSortType(MOST_POPULAR);
                 return true;
             case R.id.actionSortTopRated:
+                progressBar.setVisibility(View.VISIBLE);
                 setSortType(TOP_RATED);
                 return true;
             default:
@@ -119,19 +107,30 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
     private void setSortType(int sortType) {
         switch (sortType) {
             case MOST_POPULAR:
-                presenter.getPopularMovies(getLoaderManager(), this);
-                getSupportActionBar().setTitle(getString(R.string.action_most_popular));
+                if (((NewmApplication) getApplication()).isNetworkConnection()) {
+                    presenter.getPopularMovies(getLoaderManager(), this);
+                    getSupportActionBar().setTitle(getString(R.string.action_most_popular));
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    Snackbar.make(mainBackground, "No internet connection!", Snackbar.LENGTH_LONG).show();
+
+                }
+
                 break;
             case TOP_RATED:
-                presenter.getTopRatedMovies(getLoaderManager(), this);
-                getSupportActionBar().setTitle(getString(R.string.action_top_rated));
+                if (((NewmApplication) getApplication()).isNetworkConnection()) {
+                    presenter.getTopRatedMovies(getLoaderManager(), this);
+                    getSupportActionBar().setTitle(getString(R.string.action_top_rated));
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    Snackbar.make(mainBackground, "No internet connection!", Snackbar.LENGTH_LONG).show();
+                }
                 break;
         }
     }
 
     @Override
     public void movieClicked(MovieEntity movieEntity, ImageView moviePoster) {
-
         ActivityOptions optionsCompat = ActivityOptions.makeSceneTransitionAnimation(this, moviePoster, ViewCompat.getTransitionName(moviePoster));
         Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra(MovieDetailsActivity.EXTRA_MOVIE_IMAGE_TRANSITION, ViewCompat.getTransitionName(moviePoster));

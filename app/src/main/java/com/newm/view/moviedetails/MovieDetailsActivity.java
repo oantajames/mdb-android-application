@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.bumptech.glide.Glide;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.newm.R;
 import com.newm.data.api.MovieEntity;
@@ -25,9 +26,10 @@ import com.newm.presenter.moviedetails.MovieDetailsPresenterImpl;
 import com.newm.util.SharedPreferencesUtil;
 import com.newm.view.BaseActivity;
 import com.newm.view.moviesgrid.MoviesGridActivity;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
 import javax.inject.Inject;
+
+import static com.newm.data.api.ApiConstants.BASE_BACKDROP_URL;
+import static com.newm.data.api.ApiConstants.BASE_IMAGE_URL;
 
 /**
  * @author james on 8/1/17.
@@ -39,10 +41,6 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
 
     @Inject
     MovieDetailsPresenter presenter;
-    //"w92", "w154", "w185", "w342", "w500", "w780", or "original"
-    private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
-    private static final String BACKDROP_SIZE = "original";
-    private static final String POSTER_SIZE = "w185";
 
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
 
@@ -66,18 +64,38 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        inject();
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_movie_details);
+        ButterKnife.bind(this);
+        MovieEntity movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
+        if (movieEntity != null) {
+            presenter.onCreate(Uri.parse(BASE_IMAGE_URL + movieEntity.getBackdropPath()), this);
+        }
+        bindViews(movieEntity);
+    }
+
+    private void inject() {
         DaggerMovieDetailsComponent movieDetailsComponent = (DaggerMovieDetailsComponent) DaggerMovieDetailsComponent.builder()
                 .applicationComponent(getApplicationComponent())
                 .movieDetailsModule(new MovieDetailsModule())
                 .build();
         movieDetailsComponent.inject(this);
-        setContentView(R.layout.activity_movie_details);
-        ButterKnife.bind(this);
-        MovieEntity movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
-        if (movieEntity != null) {
-            presenter.onCreate(Uri.parse(BASE_IMAGE_URL + BACKDROP_SIZE + movieEntity.getBackdropPath()), this);
-        }
-        bindViews(movieEntity);
+    }
+
+    public void bindViews(MovieEntity entity) {
+        setMoviePosterTransition();
+        Glide.with(this)
+                .load(Uri.parse(BASE_BACKDROP_URL + entity.getBackdropPath()))
+                .into(movieHeader);
+        Glide.with(this)
+                .load(Uri.parse(BASE_IMAGE_URL + entity.getPosterPath()))
+                .into(moviePoster);
+        movieTitle.setText(entity.getTitle());
+        movieReleaseYear.setText(getYearOfRelease(entity.getReleaseDate()));
+        movieRating.setText(String.valueOf(entity.getVoteAverage()));
+        movieDescription.setText(entity.getOverview());
     }
 
     private void setMoviePosterTransition() {
@@ -87,27 +105,6 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
             transition = extras.getString(EXTRA_MOVIE_IMAGE_TRANSITION);
             moviePoster.setTransitionName(transition);
         }
-    }
-
-    private void setBackdropGradient(int colorCode) {
-        GradientDrawable gradientDrawable = new GradientDrawable(
-                GradientDrawable.Orientation.BOTTOM_TOP,
-                new int[]{colorCode, Color.TRANSPARENT});
-        backdropGradient.setBackground(gradientDrawable);
-    }
-
-    public void bindViews(MovieEntity entity) {
-        setMoviePosterTransition();
-        Picasso.with(this)
-                .load(Uri.parse(BASE_IMAGE_URL + POSTER_SIZE + entity.getBackdropPath()))
-                .into(movieHeader);
-        Picasso.with(this)
-                .load(Uri.parse(BASE_IMAGE_URL + POSTER_SIZE + entity.getPosterPath()))
-                .into(moviePoster);
-        movieTitle.setText(entity.getTitle());
-        movieReleaseYear.setText(getYearOfRelease(entity.getReleaseDate()));
-        movieRating.setText(String.valueOf(entity.getVoteAverage()));
-        movieDescription.setText(entity.getOverview());
     }
 
     private String getYearOfRelease(String releaseDate) {
@@ -122,8 +119,16 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         window.setStatusBarColor(palette.getDominantColor(Color.WHITE));
         String hexColor = String.format("#%06X", (0xFFFFFF & palette.getDominantColor(Color.WHITE)));
         setBackdropGradient(Color.parseColor(hexColor));
+        moviePoster.setBackgroundColor(palette.getDominantColor(Color.GRAY));
         mainBackground.setBackgroundColor(palette.getDominantColor((Color.WHITE)));
         SharedPreferencesUtil.saveInt(SharedPreferencesUtil.MOVIE_DETAILS_MAIN_COLOR, palette.getDominantColor((Color.WHITE)), this);
+    }
+
+    private void setBackdropGradient(int colorCode) {
+        GradientDrawable gradientDrawable = new GradientDrawable(
+                GradientDrawable.Orientation.BOTTOM_TOP,
+                new int[]{colorCode, Color.TRANSPARENT});
+        backdropGradient.setBackground(gradientDrawable);
     }
 
     @Override

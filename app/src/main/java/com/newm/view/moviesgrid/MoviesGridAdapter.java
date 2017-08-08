@@ -3,7 +3,6 @@ package com.newm.view.moviesgrid;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,14 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.newm.R;
 import com.newm.data.api.ApiConstants;
 import com.newm.data.api.MovieEntity;
 import com.newm.loaders.ImageLoader;
-import com.newm.util.TranslateDraweeView;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,9 +53,11 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
     }
 
     public void setMovieList(List<MovieEntity> movieList) {
-        this.movieEntities.clear();
-        this.movieEntities = movieList;
-        this.notifyDataSetChanged();
+        if (movieList != null) {
+            this.movieEntities.clear();
+            this.movieEntities = movieList;
+            this.notifyDataSetChanged();
+        }
     }
 
     public MovieEntity getMovieEntity(int position) {
@@ -85,7 +83,7 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
 
         public void setMovieItem(final MovieEntity movieItem, final int position) {
             ViewCompat.setTransitionName(moviePoster, getMovieEntity(position).getTitle());
-            Picasso.with(context)
+            Glide.with(context)
                     .load(Uri.parse(ApiConstants.BASE_IMAGE_URL + movieItem.getPosterPath()))
                     .into(moviePoster);
             moviePoster.setOnClickListener(v -> {

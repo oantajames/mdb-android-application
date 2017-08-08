@@ -20,12 +20,7 @@ import javax.inject.Singleton;
  * @author james on 8/4/17.
  */
 
-@Singleton
 public class ImageUtils {
-
-    @Inject
-    public ImageUtils() {
-    }
 
     public static void getPrimaryImageColorsAsync(Bitmap bitmap, PalleteListener listener) {
         Palette.from(bitmap).generate(listener::onColorGenerate);

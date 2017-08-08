@@ -1,6 +1,7 @@
 package com.newm.di.module;
 
 import android.content.Context;
+import com.newm.BuildConfig;
 import com.newm.data.api.ApiConstants;
 import com.newm.data.api.MoviesService;
 import com.newm.loaders.MoviesLoader;
@@ -34,7 +35,7 @@ public class NetworkModule {
             Request original = chain.request();
             HttpUrl originalUrl = original.url();
             HttpUrl newUrl = originalUrl.newBuilder()
-                    .addQueryParameter("api_key", ApiConstants.API_KEY)
+                    .addQueryParameter("api_key", BuildConfig.API_KEY)
                     .build();
             Request.Builder reqBuilder = original.newBuilder()
                     .url(newUrl);
