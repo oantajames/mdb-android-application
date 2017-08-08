@@ -71,7 +71,7 @@
                 android:layout_marginLeft="13dp"
                 android:text="@string/movie_description_default"
                 android:textColor="@android:color/white"
-                android:textSize="@dimen/movie_description_text_size"/>
+                android:textSize="18sp"/>
 
         </LinearLayout>
 
