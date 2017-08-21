@@ -2,7 +2,7 @@ package com.newm.presenter.moviesgrid;
 
 import android.app.LoaderManager;
 import android.util.Log;
-import com.newm.data.api.MovieEntity;
+import com.newm.data.api.entity.MovieEntity;
 import com.newm.loaders.MoviesLoader;
 import com.newm.util.loader.Callback;
 import com.newm.util.loader.RetrofitLoaderManager;

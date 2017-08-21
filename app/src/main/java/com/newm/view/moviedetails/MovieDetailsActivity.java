@@ -1,12 +1,15 @@
 package com.newm.view.moviedetails;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,7 +21,8 @@ import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.newm.R;
-import com.newm.data.api.MovieEntity;
+import com.newm.data.api.entity.MovieEntity;
+import com.newm.data.api.entity.MovieVideoEntity;
 import com.newm.di.component.DaggerMovieDetailsComponent;
 import com.newm.di.module.MovieDetailsModule;
 import com.newm.presenter.moviedetails.MovieDetailsPresenter;
@@ -26,7 +30,9 @@ import com.newm.presenter.moviedetails.MovieDetailsPresenterImpl;
 import com.newm.util.SharedPreferencesUtil;
 import com.newm.view.BaseActivity;
 import com.newm.view.moviesgrid.MoviesGridActivity;
+import java.util.List;
 import javax.inject.Inject;
+import uk.co.deanwild.flowtextview.FlowTextView;
 
 import static com.newm.data.api.ApiConstants.BASE_BACKDROP_URL;
 import static com.newm.data.api.ApiConstants.BASE_IMAGE_URL;
@@ -35,9 +41,11 @@ import static com.newm.data.api.ApiConstants.BASE_IMAGE_URL;
  * @author james on 8/1/17.
  */
 
-public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPresenterImpl.PresenterPaletteListener {
+public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPresenterImpl.PresenterPaletteListener, MovieDetailsPresenterImpl.Delegate {
 
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
+
+    public static final int MOVIE_TRAILERS_LOADER_ID = 11;
 
     @Inject
     MovieDetailsPresenter presenter;
@@ -57,9 +65,13 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     @Bind(R.id.movie_poster)
     ImageView moviePoster;
     @Bind(R.id.movie_description)
-    TextView movieDescription;
+    FlowTextView movieDescription;
     @Bind(R.id.main_background)
     LinearLayout mainBackground;
+    @Bind(R.id.trailer_recycler_view)
+    RecyclerView trailersRecyclerView;
+
+    private MovieTrailersAdapter movieTrailersAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,11 +81,23 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         getSupportActionBar().hide();
         setContentView(R.layout.activity_movie_details);
         ButterKnife.bind(this);
+        setFlowTextViewAppearance();
         MovieEntity movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
+        movieTrailersAdapter = new MovieTrailersAdapter(this);
         if (movieEntity != null) {
             presenter.onCreate(Uri.parse(BASE_IMAGE_URL + movieEntity.getBackdropPath()), this);
+            presenter.getMovieTrailers(getLoaderManager(), String.valueOf(movieEntity.getId()), this);
         }
         bindViews(movieEntity);
+
+        //todo -> fetch reviews
+        // 1. add them to the adapter
+
+    }
+
+    private void setFlowTextViewAppearance() {
+        movieDescription.setTextColor(Color.WHITE);
+        movieDescription.setTextSize(60);
     }
 
     private void inject() {
@@ -134,6 +158,25 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     @Override
     public void onPaletteFailure() {
         Log.e(TAG, "Palette failure!");
+    }
+
+    @Override
+    public void setMovieTrailers(List<MovieVideoEntity> result) {
+        movieTrailersAdapter.setOnItemClickListener((itemView, position) -> onMovieVideoClicked(position));
+        trailersRecyclerView.setAdapter(movieTrailersAdapter);
+        trailersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        trailersRecyclerView.setLayoutManager(layoutManager);
+        movieTrailersAdapter.setMovieVideos(result);
+    }
+
+    private void onMovieVideoClicked(int position) {
+        MovieVideoEntity video = movieTrailersAdapter.getItem(position);
+        if (video != null && video.isYoutubeVideo()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://www.youtube.com/watch?v=" + video.getKey()));
+            startActivity(intent);
+        }
     }
 }
 

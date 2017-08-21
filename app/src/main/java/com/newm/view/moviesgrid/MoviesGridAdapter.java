@@ -13,7 +13,7 @@ import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
 import com.newm.R;
 import com.newm.data.api.ApiConstants;
-import com.newm.data.api.MovieEntity;
+import com.newm.data.api.entity.MovieEntity;
 import com.newm.loaders.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;

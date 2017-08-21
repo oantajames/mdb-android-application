@@ -17,7 +17,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.newm.NewmApplication;
 import com.newm.R;
-import com.newm.data.api.MovieEntity;
+import com.newm.data.api.entity.MovieEntity;
 import com.newm.di.component.DaggerMoviesGridComponent;
 import com.newm.di.module.MoviesGridModule;
 import com.newm.presenter.moviesgrid.MoviesGridPresenter;

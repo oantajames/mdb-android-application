@@ -1,8 +1,9 @@
 package com.newm.loaders;
 
 import android.content.Context;
-import com.newm.data.api.MovieEntity;
+import com.newm.data.api.entity.MovieEntity;
 import com.newm.data.api.MoviesService;
+import com.newm.data.api.entity.MovieVideoEntity;
 import com.newm.util.loader.MoviesInteractor;
 import com.newm.util.loader.RetrofitLoader;
 import java.util.List;
@@ -45,4 +46,16 @@ public class MoviesLoader {
             }
         };
     }
+
+    public RetrofitLoader getMovieTrailers(final String movieId) {
+        return new RetrofitLoader<List<MovieVideoEntity>,MoviesService>(context, service) {
+
+            @Override
+            public List<MovieVideoEntity> call(MoviesService service) {
+                return interactor.createMovieTrailersCall(service, movieId);
+            }
+        };
+    }
+
+
 }

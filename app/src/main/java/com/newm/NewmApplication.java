@@ -21,6 +21,14 @@ import javax.inject.Named;
 
 public class NewmApplication extends Application {
 
+    //TODO : You’ll allow users to read reviews of a selected movie.
+
+    //TODO : You’ll also allow users to mark a movie as a favorite in the details view by tapping a button(star).
+
+    //TODO : You'll create a database and content provider to store the names and ids of the user's favorite movies (and optionally, the rest of the information needed to display their favorites collection while offline).
+
+    //TODO : You’ll modify the existing sorting criteria for the main view to include an additional pivot to show their favorites collection.
+
     private ApplicationComponent applicationComponent;
 
     @Inject

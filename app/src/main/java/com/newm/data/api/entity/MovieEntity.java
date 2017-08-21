@@ -1,7 +1,8 @@
-package com.newm.data.api;
+package com.newm.data.api.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
