@@ -10,4 +10,7 @@
 
     <color name="yellow">#FFB500</color>
     <color name="blue">#2F77B7</color>
+
+    <color name="user_review_gray">#666666</color>
+    <color name="separator_gray">#979797</color>
 </resources>

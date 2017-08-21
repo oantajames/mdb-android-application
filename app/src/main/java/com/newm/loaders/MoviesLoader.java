@@ -4,6 +4,7 @@ import android.content.Context;
 import com.newm.data.api.entity.MovieEntity;
 import com.newm.data.api.MoviesService;
 import com.newm.data.api.entity.MovieVideoEntity;
+import com.newm.data.api.entity.ReviewEntity;
 import com.newm.util.loader.MoviesInteractor;
 import com.newm.util.loader.RetrofitLoader;
 import java.util.List;
@@ -48,11 +49,21 @@ public class MoviesLoader {
     }
 
     public RetrofitLoader getMovieTrailers(final String movieId) {
-        return new RetrofitLoader<List<MovieVideoEntity>,MoviesService>(context, service) {
+        return new RetrofitLoader<List<MovieVideoEntity>, MoviesService>(context, service) {
 
             @Override
             public List<MovieVideoEntity> call(MoviesService service) {
                 return interactor.createMovieTrailersCall(service, movieId);
+            }
+        };
+    }
+
+    public RetrofitLoader getMovieReviews(final String movieId) {
+        return new RetrofitLoader<List<ReviewEntity>, MoviesService>(context, service) {
+
+            @Override
+            public List<ReviewEntity> call(MoviesService service) {
+                return interactor.createMovieReviewsCall(service, movieId);
             }
         };
     }

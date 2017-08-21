@@ -6,13 +6,34 @@ package com.newm.data.api.entity;
 
 public class ReviewEntity {
 
-    public String id;
+    private String id;
 
-    public String author;
+    private String author;
 
-    public String content;
+    private String content;
 
-    public String url;
+    private String url;
 
-    public int movieId;
+    private int movieId;
+
+    public String getId() {
+        return id;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public int getMovieId() {
+        return movieId;
+    }
+
 }

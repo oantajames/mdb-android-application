@@ -1,6 +1,7 @@
 package com.newm.view.moviesgrid;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.newm.R;
 import com.newm.data.api.ApiConstants;
 import com.newm.data.api.entity.MovieEntity;
@@ -85,7 +87,12 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
             ViewCompat.setTransitionName(moviePoster, getMovieEntity(position).getTitle());
             Glide.with(context)
                     .load(Uri.parse(ApiConstants.BASE_IMAGE_URL + movieItem.getPosterPath()))
+                    .placeholder(Color.GRAY)
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .centerCrop()
+                    .crossFade()
                     .into(moviePoster);
+
             moviePoster.setOnClickListener(v -> {
                 if (listener == null) return;
                 listener.movieClicked(movieItem, moviePoster);

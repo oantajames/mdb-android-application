@@ -1,4 +1,4 @@
-package com.newm.view.moviedetails;
+package com.newm.view.moviedetails.trailers;
 
 import android.view.View;
 

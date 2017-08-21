@@ -1,10 +1,8 @@
 package com.newm.view.moviesgrid;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -131,10 +129,8 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
 
     @Override
     public void movieClicked(MovieEntity movieEntity, ImageView moviePoster) {
-        ActivityOptions optionsCompat = ActivityOptions.makeSceneTransitionAnimation(this, moviePoster, ViewCompat.getTransitionName(moviePoster));
         Intent intent = new Intent(this, MovieDetailsActivity.class);
-        intent.putExtra(MovieDetailsActivity.EXTRA_MOVIE_IMAGE_TRANSITION, ViewCompat.getTransitionName(moviePoster));
         intent.putExtra(MOVIE_ENTITY, movieEntity);
-        startActivity(intent, optionsCompat.toBundle());
+        startActivity(intent);
     }
 }

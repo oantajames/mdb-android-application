@@ -3,8 +3,10 @@ package com.newm.util.loader;
 import android.util.Log;
 import com.newm.data.api.entity.MovieEntity;
 import com.newm.data.api.entity.MovieVideoEntity;
+import com.newm.data.api.entity.ReviewEntity;
 import com.newm.data.api.reponse.MovieResponse;
 import com.newm.data.api.MoviesService;
+import com.newm.data.api.reponse.MovieReviewsResponse;
 import com.newm.data.api.reponse.MovieVideosResponse;
 import java.io.IOException;
 import java.util.List;
@@ -61,6 +63,21 @@ public class MoviesInteractor {
             Response<MovieVideosResponse> response = service.getMovieVideos(movieId).execute();
             if (response.isSuccessful()) {
                 return response.body().getTrailers();
+            } else {
+                Log.e(TAG, "unsuccessfully loaded...");
+                Log.e(TAG, String.valueOf(response.errorBody()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<ReviewEntity> createMovieReviewsCall(MoviesService service, String movieId) {
+        try {
+            Response<MovieReviewsResponse> response = service.getMovieReviews(movieId).execute();
+            if (response.isSuccessful()) {
+                return response.body().getReviews();
             } else {
                 Log.e(TAG, "unsuccessfully loaded...");
                 Log.e(TAG, String.valueOf(response.errorBody()));

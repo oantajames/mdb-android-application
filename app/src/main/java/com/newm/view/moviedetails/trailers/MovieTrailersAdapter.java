@@ -1,6 +1,7 @@
-package com.newm.view.moviedetails;
+package com.newm.view.moviedetails.trailers;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.newm.R;
 import com.newm.data.api.entity.MovieVideoEntity;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
 public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdapter.TrailerViewHolder> {
 
     private static final String YOUTUBE_THUMBNAIL = "https://img.youtube.com/vi/%s/mqdefault.jpg";
+
     @Nullable
     private List<MovieVideoEntity> movieVideos;
     @Nullable
@@ -45,6 +48,10 @@ public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdap
             if (video.isYoutubeVideo()) {
                 Glide.with(context)
                         .load(String.format(YOUTUBE_THUMBNAIL, video.getKey()))
+                        .placeholder(Color.GRAY)
+                        .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                        .centerCrop()
+                        .crossFade()
                         .into(holder.movieVideoThumbnail);
             }
         }

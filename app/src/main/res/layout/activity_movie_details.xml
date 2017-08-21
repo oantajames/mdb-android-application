@@ -103,6 +103,23 @@
             android:layout_height="wrap_content"
             android:layout_margin="13dp"/>
 
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="13dp"
+            android:text="REVIEWS"
+            android:textColor="@android:color/white"
+            android:textSize="25sp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/reviews_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_margin="13dp"/>
+
     </LinearLayout>
 
 </ScrollView>

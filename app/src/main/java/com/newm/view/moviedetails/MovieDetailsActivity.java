@@ -19,16 +19,20 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.newm.R;
 import com.newm.data.api.entity.MovieEntity;
 import com.newm.data.api.entity.MovieVideoEntity;
+import com.newm.data.api.entity.ReviewEntity;
 import com.newm.di.component.DaggerMovieDetailsComponent;
 import com.newm.di.module.MovieDetailsModule;
 import com.newm.presenter.moviedetails.MovieDetailsPresenter;
 import com.newm.presenter.moviedetails.MovieDetailsPresenterImpl;
 import com.newm.util.SharedPreferencesUtil;
 import com.newm.view.BaseActivity;
+import com.newm.view.moviedetails.reviews.MovieReviewsAdapter;
+import com.newm.view.moviedetails.trailers.MovieTrailersAdapter;
 import com.newm.view.moviesgrid.MoviesGridActivity;
 import java.util.List;
 import javax.inject.Inject;
@@ -46,6 +50,8 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
 
     public static final int MOVIE_TRAILERS_LOADER_ID = 11;
+
+    public static final int MOVIE_REVIEWS_LOADER_ID = 12;
 
     @Inject
     MovieDetailsPresenter presenter;
@@ -70,8 +76,11 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     LinearLayout mainBackground;
     @Bind(R.id.trailer_recycler_view)
     RecyclerView trailersRecyclerView;
+    @Bind(R.id.reviews_recycler_view)
+    RecyclerView reviewsRecyclerView;
 
     private MovieTrailersAdapter movieTrailersAdapter;
+    private MovieReviewsAdapter reviewsAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,15 +93,13 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         setFlowTextViewAppearance();
         MovieEntity movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
         movieTrailersAdapter = new MovieTrailersAdapter(this);
+        reviewsAdapter = new MovieReviewsAdapter();
         if (movieEntity != null) {
-            presenter.onCreate(Uri.parse(BASE_IMAGE_URL + movieEntity.getBackdropPath()), this);
-            presenter.getMovieTrailers(getLoaderManager(), String.valueOf(movieEntity.getId()), this);
+            presenter.onCreate(Uri.parse(BASE_IMAGE_URL + movieEntity.getBackdropPath()), this, this);
+            presenter.getMovieTrailers(getLoaderManager(), String.valueOf(movieEntity.getId()));
+            presenter.getMovieReviews(getLoaderManager(), String.valueOf(movieEntity.getId()));
         }
         bindViews(movieEntity);
-
-        //todo -> fetch reviews
-        // 1. add them to the adapter
-
     }
 
     private void setFlowTextViewAppearance() {
@@ -112,10 +119,20 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         setMoviePosterTransition();
         Glide.with(this)
                 .load(Uri.parse(BASE_BACKDROP_URL + entity.getBackdropPath()))
+                .placeholder(Color.GRAY)
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .centerCrop()
+                .crossFade()
                 .into(movieHeader);
+
         Glide.with(this)
                 .load(Uri.parse(BASE_IMAGE_URL + entity.getPosterPath()))
+                .placeholder(Color.GRAY)
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .centerCrop()
+                .crossFade()
                 .into(moviePoster);
+
         movieTitle.setText(entity.getTitle());
         movieReleaseYear.setText(getYearOfRelease(entity.getReleaseDate()));
         movieRating.setText(String.valueOf(entity.getVoteAverage()));
@@ -168,6 +185,15 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         trailersRecyclerView.setLayoutManager(layoutManager);
         movieTrailersAdapter.setMovieVideos(result);
+    }
+
+    @Override
+    public void setMovieReviews(List<ReviewEntity> reviews) {
+        reviewsRecyclerView.setAdapter(reviewsAdapter);
+        reviewsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        reviewsRecyclerView.setLayoutManager(layoutManager);
+        reviewsAdapter.setReviews(reviews);
     }
 
     private void onMovieVideoClicked(int position) {

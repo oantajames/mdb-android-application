@@ -10,8 +10,11 @@ import android.support.v7.graphics.Palette;
 
 public interface MovieDetailsPresenter {
 
-    void onCreate(Uri imageUrl, MovieDetailsPresenterImpl.PresenterPaletteListener presenterPaletteListener);
+    void onCreate(Uri imageUrl, MovieDetailsPresenterImpl.PresenterPaletteListener presenterPaletteListener, MovieDetailsPresenterImpl.Delegate delegate);
 
-    void getMovieTrailers(LoaderManager loaderManager, String movieId, MovieDetailsPresenterImpl.Delegate delegate);
+    void getMovieTrailers(LoaderManager loaderManager, String movieId);
+
+    void getMovieReviews(LoaderManager loaderManager, String movieId);
+
 
 }
