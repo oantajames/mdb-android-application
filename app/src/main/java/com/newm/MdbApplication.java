@@ -19,9 +19,7 @@ import javax.inject.Named;
  * @author james on 7/17/17.
  */
 
-public class NewmApplication extends Application {
-
-    //TODO : You’ll allow users to read reviews of a selected movie.
+public class MdbApplication extends Application {
 
     //TODO : You’ll also allow users to mark a movie as a favorite in the details view by tapping a button(star).
 

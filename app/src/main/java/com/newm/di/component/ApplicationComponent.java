@@ -1,8 +1,7 @@
 package com.newm.di.component;
 
 import android.content.Context;
-import com.newm.NewmApplication;
-import com.newm.data.api.MoviesService;
+import com.newm.MdbApplication;
 import com.newm.di.module.ApplicationModule;
 import com.newm.di.module.NetworkModule;
 import com.newm.loaders.MoviesLoader;
@@ -26,7 +25,7 @@ public interface ApplicationComponent {
     @Named("frescoOkHttpClient")
     OkHttpClient frescoOkHttpClient();
 
-    void inject(NewmApplication newmApplication);
+    void inject(MdbApplication mdbApplication);
 
     void inject(BaseActivity baseActivity);
 }

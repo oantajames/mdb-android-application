@@ -2,7 +2,7 @@ package com.newm.di.module;
 
 import android.app.Application;
 import android.content.Context;
-import com.newm.NewmApplication;
+import com.newm.MdbApplication;
 import com.newm.di.component.ApplicationComponent;
 import dagger.Module;
 import dagger.Provides;
@@ -15,15 +15,15 @@ import javax.inject.Singleton;
 @Module
 public class ApplicationModule {
 
-    private final NewmApplication application;
+    private final MdbApplication application;
 
-    public ApplicationModule(NewmApplication application) {
+    public ApplicationModule(MdbApplication application) {
         this.application = application;
     }
 
     @Provides
     @Singleton
-    public NewmApplication provideNewmApplication() {
+    public MdbApplication provideNewmApplication() {
         return application;
     }
 

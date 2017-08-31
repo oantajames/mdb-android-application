@@ -1,5 +1,7 @@
 package com.newm.view.moviesgrid;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -26,6 +28,11 @@ import static com.newm.view.moviesgrid.FragmentMoviesList.MOST_POPULAR;
 import static com.newm.view.moviesgrid.FragmentMoviesList.TOP_RATED;
 
 public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent> {
+
+    public static Intent getCallingIntent(Context context) {
+        return new Intent(context, MoviesGridActivity.class);
+    }
+
 
     public static final int MOVIE_LOADER_ID = 10;
     public static String MOVIE_ENTITY = "movie_entity";
