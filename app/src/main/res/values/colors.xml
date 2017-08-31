@@ -13,4 +13,11 @@
 
     <color name="user_review_gray">#666666</color>
     <color name="separator_gray">#979797</color>
+
+
+    <!--New colors for MDB-->
+    <color name="color_black">#000000</color>
+    <color name="color_mdb_green">#00CF64</color>
+    <color name="color_dark_gray">#282727</color>
+
 </resources>

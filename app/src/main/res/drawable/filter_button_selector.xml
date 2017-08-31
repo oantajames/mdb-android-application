@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/round_green_filter_button_background"
+        android:state_checked="true"
+        android:state_enabled="true"
+        android:state_selected="true"/>
+    <!--Default state color-->
+    <item android:drawable="@drawable/round_green_button_with_stroke"/>
+
+</selector>

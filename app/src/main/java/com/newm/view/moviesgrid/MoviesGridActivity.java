@@ -1,51 +1,43 @@
 package com.newm.view.moviesgrid;
 
-import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import com.newm.NewmApplication;
 import com.newm.R;
-import com.newm.data.api.entity.MovieEntity;
+import com.newm.di.HasComponent;
 import com.newm.di.component.DaggerMoviesGridComponent;
+import com.newm.di.component.MoviesGridComponent;
 import com.newm.di.module.MoviesGridModule;
-import com.newm.presenter.moviesgrid.MoviesGridPresenter;
-import com.newm.presenter.moviesgrid.MoviesGridPresenterImpl;
 import com.newm.view.BaseActivity;
-import com.newm.view.moviedetails.MovieDetailsActivity;
+import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
-public class MoviesGridActivity extends BaseActivity implements MoviesGridPresenterImpl.Delegate, MoviesGridAdapter.MovieClickListener {
+import static com.newm.view.moviesgrid.FragmentMoviesList.*;
+import static com.newm.view.moviesgrid.FragmentMoviesList.MOST_POPULAR;
+import static com.newm.view.moviesgrid.FragmentMoviesList.TOP_RATED;
 
-    private static final int MOST_POPULAR = 0;
-    private static final int TOP_RATED = 1;
+public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent> {
 
     public static final int MOVIE_LOADER_ID = 10;
     public static String MOVIE_ENTITY = "movie_entity";
 
-    @Bind(R.id.movies_recycler_view)
-    RecyclerView recyclerView;
-    @Bind(R.id.movie_grid_progress_bar)
-    ProgressBar progressBar;
-    @Bind(R.id.main_mogie_grid_background)
-    ViewGroup mainBackground;
+    @Bind(R.id.viewpager)
+    ViewPager viewPager;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+    @Bind(R.id.tabs)
+    TabLayout tabLayout;
 
-    @Inject
-    MoviesGridPresenter presenter;
-
-    private int currentSortType;
-
-    private MoviesGridAdapter adapter;
+    private DaggerMoviesGridComponent moviesGridComponent;
 
 
     @Override
@@ -54,83 +46,108 @@ public class MoviesGridActivity extends BaseActivity implements MoviesGridPresen
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         inject();
-        getSupportActionBar().setTitle(getString(R.string.action_most_popular));
-        initMovieGrid();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        setTabLayoutListener();
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        initTabIcons();
+        //default position
+        viewPager.setCurrentItem(1);
     }
 
     private void inject() {
-        DaggerMoviesGridComponent moviesGridComponent = (DaggerMoviesGridComponent) DaggerMoviesGridComponent.builder()
+        moviesGridComponent = (DaggerMoviesGridComponent) DaggerMoviesGridComponent.builder()
                 .applicationComponent(getApplicationComponent())
                 .moviesGridModule(new MoviesGridModule())
                 .build();
         moviesGridComponent.inject(this);
     }
 
-    private void initMovieGrid() {
-        adapter = new MoviesGridAdapter(this);
-        presenter.getPopularMovies(getLoaderManager(), this);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+    private void initTabIcons() {
+        TextView mostPopular = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
+        mostPopular.setText(getString(R.string.most_popular));
+        tabLayout.getTabAt(0).setCustomView(mostPopular);
+
+        TextView topRated = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
+        topRated.setText(getString(R.string.top_rated));
+        tabLayout.getTabAt(1).setCustomView(topRated);
+
+        TextView myFavorites = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
+        myFavorites.setText(getString(R.string.my_favorites));
+        tabLayout.getTabAt(2).setCustomView(myFavorites);
     }
 
     @Override
-    public void setMoviesList(List<MovieEntity> result) {
-        adapter.setMovieList(result);
-        progressBar.setVisibility(View.GONE);
+    public MoviesGridComponent getComponent() {
+        return moviesGridComponent;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(newInstance(MOST_POPULAR), getString(R.string.most_popular));
+        adapter.addFrag(newInstance(TOP_RATED), getString(R.string.top_rated));
+        adapter.addFrag(newInstance(MY_FAVORITES), getString(R.string.my_favorites));
+        viewPager.setAdapter(adapter);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.actionSortMostPopular:
-                progressBar.setVisibility(View.VISIBLE);
-                setSortType(MOST_POPULAR);
-                return true;
-            case R.id.actionSortTopRated:
-                progressBar.setVisibility(View.VISIBLE);
-                setSortType(TOP_RATED);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    private void setTabLayoutListener() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                TextView textView = (TextView) tab.getCustomView();
+                textView.setBackground(getDrawable(R.drawable.round_green_filter_button_background));
+                textView.setTextColor(Color.WHITE);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                TextView textView = (TextView) tab.getCustomView();
+                textView.setSelected(false);
+                textView.setBackground(getDrawable(R.drawable.round_green_button_with_stroke));
+                textView.setTextColor(getResources().getColorStateList(R.color.color_mdb_green));
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFrag(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
         }
     }
 
-    private void setSortType(int sortType) {
-        switch (sortType) {
-            case MOST_POPULAR:
-                if (((NewmApplication) getApplication()).isNetworkConnection()) {
-                    presenter.getPopularMovies(getLoaderManager(), this);
-                    getSupportActionBar().setTitle(getString(R.string.action_most_popular));
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    Snackbar.make(mainBackground, "No internet connection!", Snackbar.LENGTH_LONG).show();
-
-                }
-
-                break;
-            case TOP_RATED:
-                if (((NewmApplication) getApplication()).isNetworkConnection()) {
-                    presenter.getTopRatedMovies(getLoaderManager(), this);
-                    getSupportActionBar().setTitle(getString(R.string.action_top_rated));
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    Snackbar.make(mainBackground, "No internet connection!", Snackbar.LENGTH_LONG).show();
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void movieClicked(MovieEntity movieEntity, ImageView moviePoster) {
-        Intent intent = new Intent(this, MovieDetailsActivity.class);
-        intent.putExtra(MOVIE_ENTITY, movieEntity);
-        startActivity(intent);
-    }
 }

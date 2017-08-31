@@ -58,7 +58,6 @@ public class MovieDetailsPresenterImpl implements MovieDetailsPresenter,
                 moviesLoader.getMovieReviews(movieId), createReviewsListener());
     }
 
-
     //Palette related
     @Override
     public void returnBitmap(Bitmap bitmap) {

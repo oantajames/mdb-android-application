@@ -2,6 +2,7 @@ package com.newm.di.component;
 
 import com.newm.di.module.MoviesGridModule;
 import com.newm.presenter.moviesgrid.MoviesGridPresenter;
+import com.newm.view.moviesgrid.FragmentMoviesList;
 import com.newm.view.moviesgrid.MoviesGridActivity;
 import dagger.Component;
 
@@ -18,5 +19,7 @@ public interface MoviesGridComponent {
 
     //where
     void inject(MoviesGridActivity moviesGridActivity);
+
+    void inject(FragmentMoviesList fragmentMoviesList);
 
 }
