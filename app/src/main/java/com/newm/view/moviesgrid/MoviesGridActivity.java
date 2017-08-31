@@ -12,14 +12,17 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.widget.TextView;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
 import com.newm.R;
 import com.newm.di.HasComponent;
 import com.newm.di.component.DaggerMoviesGridComponent;
 import com.newm.di.component.MoviesGridComponent;
 import com.newm.di.module.MoviesGridModule;
 import com.newm.view.BaseActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +36,8 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         return new Intent(context, MoviesGridActivity.class);
     }
 
-
     public static final int MOVIE_LOADER_ID = 10;
+
     public static String MOVIE_ENTITY = "movie_entity";
 
     @Bind(R.id.viewpager)

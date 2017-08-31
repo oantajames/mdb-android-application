@@ -7,8 +7,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppWithNoActionBar" parent="Theme.Design.NoActionBar">
+    <style name="AppWithNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/color_black</item>
+        <item name="colorPrimaryDark">@color/color_black</item>
         <item name="android:colorAccent">@color/color_mdb_green</item>
     </style>
 

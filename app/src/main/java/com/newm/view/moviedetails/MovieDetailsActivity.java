@@ -16,9 +16,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -35,8 +36,11 @@ import com.newm.view.BaseActivity;
 import com.newm.view.moviedetails.reviews.MovieReviewsAdapter;
 import com.newm.view.moviedetails.trailers.MovieTrailersAdapter;
 import com.newm.view.moviesgrid.MoviesGridActivity;
+
 import java.util.List;
+
 import javax.inject.Inject;
+
 import uk.co.deanwild.flowtextview.FlowTextView;
 
 import static com.newm.data.api.ApiConstants.BASE_BACKDROP_URL;
@@ -103,7 +107,7 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
 
     private void setFlowTextViewAppearance() {
         movieDescription.setTextColor(Color.WHITE);
-        movieDescription.setTextSize(60);
+        movieDescription.setTextSize(45);
     }
 
     private void inject() {
@@ -115,6 +119,17 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     }
 
     public void bindViews(MovieEntity entity) {
+        movieTitle.setText(entity.getTitle());
+        movieReleaseYear.setText(getYearOfRelease(entity.getReleaseDate()));
+        movieRating.setText(String.valueOf(entity.getVoteAverage()));
+        movieDescription.setText(entity.getOverview());
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.BLACK);
+        setGradientViews(Color.BLACK);
+        moviePoster.setBackgroundColor(Color.BLACK);
+        mainBackground.setBackgroundColor(Color.BLACK);
+        SharedPreferencesUtil.saveInt(SharedPreferencesUtil.MOVIE_DETAILS_MAIN_COLOR, (Color.BLACK), this);
         setMoviePosterTransition();
         Glide.with(this)
                 .load(Uri.parse(BASE_BACKDROP_URL + entity.getBackdropPath()))
@@ -132,10 +147,7 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
                 .crossFade()
                 .into(moviePoster);
 
-        movieTitle.setText(entity.getTitle());
-        movieReleaseYear.setText(getYearOfRelease(entity.getReleaseDate()));
-        movieRating.setText(String.valueOf(entity.getVoteAverage()));
-        movieDescription.setText(entity.getOverview());
+
     }
 
     private void setMoviePosterTransition() {
@@ -156,19 +168,19 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
     public void onPaletteRetrieved(Palette palette) {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(palette.getDominantColor(Color.WHITE));
-        String hexColor = String.format("#%06X", (0xFFFFFF & palette.getDominantColor(Color.WHITE)));
-        setBackdropGradient(Color.parseColor(hexColor));
-        moviePoster.setBackgroundColor(palette.getDominantColor(Color.GRAY));
-        mainBackground.setBackgroundColor(palette.getDominantColor((Color.WHITE)));
-        SharedPreferencesUtil.saveInt(SharedPreferencesUtil.MOVIE_DETAILS_MAIN_COLOR, palette.getDominantColor((Color.WHITE)), this);
+        window.setStatusBarColor(Color.BLACK);
+        String hexColor = String.format("#%06X", (0xFFFFFF & palette.getDarkVibrantColor(Color.BLACK)));
+        setGradientViews(Color.BLACK);
+        moviePoster.setBackgroundColor(Color.BLACK);
+        mainBackground.setBackgroundColor(Color.BLACK);
+        SharedPreferencesUtil.saveInt(SharedPreferencesUtil.MOVIE_DETAILS_MAIN_COLOR, (Color.BLACK), this);
     }
 
-    private void setBackdropGradient(int colorCode) {
-        GradientDrawable gradientDrawable = new GradientDrawable(
+    private void setGradientViews(int colorCode) {
+        GradientDrawable bottomToTopGradient = new GradientDrawable(
                 GradientDrawable.Orientation.BOTTOM_TOP,
                 new int[]{colorCode, Color.TRANSPARENT});
-        backdropGradient.setBackground(gradientDrawable);
+        backdropGradient.setBackground(bottomToTopGradient);
     }
 
     @Override

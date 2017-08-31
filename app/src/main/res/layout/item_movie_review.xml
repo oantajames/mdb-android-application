@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="13dp"
+    android:background="@android:color/white"
     android:elevation="3dp"
     android:orientation="vertical"
-    android:layout_marginBottom="13dp"
     card_view:cardCornerRadius="5dp">
 
     <LinearLayout
@@ -20,24 +21,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:textColor="@color/user_review_gray"
+            android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="James"/>
+            tools:text="James" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_margin="5dp"
-            android:background="@color/separator_gray"/>
+            android:background="@color/separator_gray" />
 
         <TextView
             android:id="@+id/review_description"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
+            android:textColor="@color/color_black"
             android:textSize="13sp"
-            tools:text="@string/movie_description_default"/>
+            tools:text="@string/movie_description_default" />
 
     </LinearLayout>
 
