@@ -1,18 +1,17 @@
 package com.newm.util.loader;
 
 import android.util.Log;
-import com.google.gson.GsonBuilder;
-import com.newm.data.api.MovieEntity;
-import com.newm.data.api.MovieResponse;
+import com.newm.data.api.entity.MovieEntity;
+import com.newm.data.api.entity.MovieVideoEntity;
+import com.newm.data.api.entity.ReviewEntity;
+import com.newm.data.api.reponse.MovieResponse;
 import com.newm.data.api.MoviesService;
+import com.newm.data.api.reponse.MovieReviewsResponse;
+import com.newm.data.api.reponse.MovieVideosResponse;
 import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.json.JSONException;
-import org.json.JSONObject;
-import retrofit2.*;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
@@ -48,6 +47,37 @@ public class MoviesInteractor {
             Response<MovieResponse> response = service.getTopRateMoviesList().execute();
             if (response.isSuccessful()) {
                 return response.body().getResults();
+            } else {
+                Log.e(TAG, "unsuccessfully loaded...");
+                Log.e(TAG, String.valueOf(response.errorBody()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public List<MovieVideoEntity> createMovieTrailersCall(MoviesService service, String movieId) {
+        try {
+            Response<MovieVideosResponse> response = service.getMovieVideos(movieId).execute();
+            if (response.isSuccessful()) {
+                return response.body().getTrailers();
+            } else {
+                Log.e(TAG, "unsuccessfully loaded...");
+                Log.e(TAG, String.valueOf(response.errorBody()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<ReviewEntity> createMovieReviewsCall(MoviesService service, String movieId) {
+        try {
+            Response<MovieReviewsResponse> response = service.getMovieReviews(movieId).execute();
+            if (response.isSuccessful()) {
+                return response.body().getReviews();
             } else {
                 Log.e(TAG, "unsuccessfully loaded...");
                 Log.e(TAG, String.valueOf(response.errorBody()));

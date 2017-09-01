@@ -1,6 +1,7 @@
 package com.newm.di.module;
 
 import com.newm.di.component.PerActivity;
+import com.newm.loaders.MoviesLoader;
 import com.newm.presenter.moviedetails.MovieDetailsPresenter;
 import com.newm.presenter.moviedetails.MovieDetailsPresenterImpl;
 import dagger.Module;
@@ -14,7 +15,7 @@ import dagger.Provides;
 public class MovieDetailsModule {
     @Provides
     @PerActivity
-    public MovieDetailsPresenter provideMovieDetailsPresenter() {
-        return new MovieDetailsPresenterImpl();
+    public MovieDetailsPresenter provideMovieDetailsPresenter(MoviesLoader moviesLoader) {
+        return new MovieDetailsPresenterImpl(moviesLoader);
     }
 }

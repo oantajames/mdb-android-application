@@ -1,5 +1,6 @@
 package com.newm.presenter.moviedetails;
 
+import android.app.LoaderManager;
 import android.net.Uri;
 import android.support.v7.graphics.Palette;
 
@@ -9,8 +10,11 @@ import android.support.v7.graphics.Palette;
 
 public interface MovieDetailsPresenter {
 
-    void onCreate(Uri imageUrl, MovieDetailsPresenterImpl.PresenterPaletteListener presenterPaletteListener);
+    void onCreate(Uri imageUrl, MovieDetailsPresenterImpl.PresenterPaletteListener presenterPaletteListener, MovieDetailsPresenterImpl.Delegate delegate);
 
-    void updateUiColors();
+    void getMovieTrailers(LoaderManager loaderManager, String movieId);
+
+    void getMovieReviews(LoaderManager loaderManager, String movieId);
+
 
 }

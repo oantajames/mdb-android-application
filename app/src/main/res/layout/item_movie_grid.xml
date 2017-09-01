@@ -6,7 +6,7 @@
     android:layout_height="280dp"
     android:layout_margin="7dp"
     card_view:cardCornerRadius="10dp"
-    card_view:cardElevation="30dp">
+    card_view:cardElevation="3dp">
 
     <ImageView
         android:id="@+id/movie_poster"

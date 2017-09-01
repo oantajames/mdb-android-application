@@ -1,6 +1,7 @@
-package com.newm.data.api;
+package com.newm.data.api.reponse;
 
 import com.google.gson.annotations.SerializedName;
+import com.newm.data.api.entity.MovieEntity;
 import java.util.List;
 
 public class MovieResponse {
