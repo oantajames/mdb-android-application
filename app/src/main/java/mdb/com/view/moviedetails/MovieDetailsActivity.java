@@ -209,7 +209,7 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
 
     private void onMovieVideoClicked(int position) {
         MovieVideoEntity video = movieTrailersAdapter.getItem(position);
-        if (video != null && video.isYoutubeVideo()) {
+        if (video != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://www.youtube.com/watch?v=" + video.getKey()));
             startActivity(intent);

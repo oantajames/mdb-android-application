@@ -7,7 +7,7 @@ import mdb.com.di.HasComponent;
  * @author james on 8/31/17.
  */
 
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
     @SuppressWarnings("unchecked")
     protected <C> C getComponent(Class<C> componentType) {

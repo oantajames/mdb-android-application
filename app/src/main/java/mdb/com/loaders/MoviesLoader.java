@@ -29,25 +29,6 @@ public class MoviesLoader {
         this.interactor = interactor;
     }
 
-    public RetrofitLoader getPopularMovies() {
-        return new RetrofitLoader<List<MovieEntity>, MoviesService>(context, service) {
-            @Override
-            public List<MovieEntity> call(MoviesService service) {
-                return interactor.createPopularMoviesCall(service);
-            }
-        };
-    }
-
-    public RetrofitLoader getTopRatedMovies() {
-        return new RetrofitLoader<List<MovieEntity>, MoviesService>(context, service) {
-
-            @Override
-            public List<MovieEntity> call(MoviesService service) {
-                return interactor.createTopRatedMoviesCall(service);
-            }
-        };
-    }
-
     public RetrofitLoader getMovieTrailers(final String movieId) {
         return new RetrofitLoader<List<MovieVideoEntity>, MoviesService>(context, service) {
 
@@ -69,4 +50,13 @@ public class MoviesLoader {
     }
 
 
+    public RetrofitLoader getMovies(int sortType) {
+        return new RetrofitLoader<List<MovieEntity>, MoviesService>(context, service) {
+
+            @Override
+            public List<MovieEntity> call(MoviesService service) {
+                return interactor.createMoviesCall(sortType, service);
+            }
+        };
+    }
 }

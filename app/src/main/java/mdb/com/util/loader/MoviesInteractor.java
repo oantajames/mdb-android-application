@@ -15,6 +15,8 @@ import javax.inject.Singleton;
 import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
+import static mdb.com.data.SortType.MOST_POPULAR;
+import static mdb.com.data.SortType.TOP_RATED;
 
 /**
  * @author james on 7/27/17.
@@ -27,7 +29,19 @@ public class MoviesInteractor {
     public MoviesInteractor() {
     }
 
-    public List<MovieEntity> createPopularMoviesCall(MoviesService service) {
+    public List<MovieEntity> createMoviesCall(int sortType, MoviesService service) {
+        switch (sortType) {
+            case TOP_RATED:
+                return createPopularMoviesCall(service);
+            case MOST_POPULAR:
+                return createTopRatedMoviesCall(service);
+            default:
+                throw new IllegalArgumentException("no sort type defined");
+        }
+    }
+
+
+    private List<MovieEntity> createPopularMoviesCall(MoviesService service) {
         try {
             Response<MovieResponse> response = service.getPopularMoviesList().execute();
             if (response.isSuccessful()) {
@@ -42,7 +56,7 @@ public class MoviesInteractor {
         return null;
     }
 
-    public List<MovieEntity> createTopRatedMoviesCall(MoviesService service) {
+    private List<MovieEntity> createTopRatedMoviesCall(MoviesService service) {
         try {
             Response<MovieResponse> response = service.getTopRateMoviesList().execute();
             if (response.isSuccessful()) {

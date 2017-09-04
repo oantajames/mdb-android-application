@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField("String", "API_KEY", '"b8ef72797fff0a5fb387da2387f063a5"')
+            buildConfigField("String", "API_KEY", '""')
         }
     }
     compileOptions {
@@ -29,6 +29,21 @@ android {
     lintOptions {
         abortOnError false
     }
+}
+ext {
+    supportLibraryVersion = "25.0.1"
+    retrofitVersion = "2.1.0"
+    okHttpVersion = "3.4.2"
+    rxJavaVersion = "1.2.2"
+    rxAndroidVersion = "1.2.1"
+    rxLifecycleVersion = "1.0"
+    rxBindingsVersion = "0.4.0"
+    butterknifeVersion = "8.4.0"
+    daggerVersion = "2.7"
+    glideVersion = "3.7.0"
+    jUnitVersion = "4.12"
+    mockitoVersion = "1.10.19"
+    testingSupportLibraryVersion = "0.5"
 }
 
 dependencies {
@@ -65,6 +80,15 @@ dependencies {
     apt "com.facebook.fresco:animated-gif:1.0"
 
     compile 'com.github.deano2390:FlowTextView:2.0.5'
+
+    compile "io.reactivex:rxjava:${rxJavaVersion}"
+    compile "io.reactivex:rxandroid:${rxAndroidVersion}"
+
+    compile "com.trello:rxlifecycle:${rxLifecycleVersion}"
+    compile "com.trello:rxlifecycle-android:${rxLifecycleVersion}"
+    compile "com.trello:rxlifecycle-components:${rxLifecycleVersion}"
+
+    compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7:${rxBindingsVersion}"
 }
 
 apply plugin: 'me.tatarka.retrolambda'

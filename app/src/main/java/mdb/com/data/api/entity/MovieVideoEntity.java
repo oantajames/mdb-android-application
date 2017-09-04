@@ -1,67 +1,92 @@
 package mdb.com.data.api.entity;
 
-import android.os.Parcel;
+import android.content.ContentValues;
+import android.database.Cursor;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import java.util.Locale;
 
+import static mdb.com.data.db.MoviesContract.TrailerColumns;
+import static mdb.com.data.db.MoviesContract.getColumnInt;
+import static mdb.com.data.db.MoviesContract.getColumnString;
+
+@SuppressWarnings("ALL")
 public class MovieVideoEntity {
 
-    private static final String SITE_YOUTUBE = "YouTube";
-
     @SerializedName("id")
-    private String videoId;
+    @Expose
+    public String id;
     @SerializedName("iso_639_1")
-    private String languageCode;
+    @Expose
+    public String iso6391;
     @SerializedName("iso_3166_1")
-    private String countryCode;
+    @Expose
+    public String iso31661;
     @SerializedName("key")
-    private String key;
+    @Expose
+    public String key;
     @SerializedName("name")
-    private String name;
+    @Expose
+    public String name;
     @SerializedName("site")
-    private String site;
+    @Expose
+    public String site;
     @SerializedName("size")
-    private int size;
+    @Expose
+    public Integer size;
     @SerializedName("type")
-    private String type;
+    @Expose
+    public String type;
+    public int movieId;
 
-    public MovieVideoEntity(String videoId) {
-        this.videoId = videoId;
+    public MovieVideoEntity(Cursor cursor) {
+        this.id = getColumnString(cursor, TrailerColumns._ID);
+        this.iso6391 = getColumnString(cursor, TrailerColumns.ISO6391);
+        this.iso31661 = getColumnString(cursor, TrailerColumns.ISO31661);
+        this.key = getColumnString(cursor, TrailerColumns.KEY);
+        this.name = getColumnString(cursor, TrailerColumns.NAME);
+        this.site = getColumnString(cursor, TrailerColumns.SITE);
+        this.size = getColumnInt(cursor, TrailerColumns.SIZE);
+        this.type = getColumnString(cursor, TrailerColumns.TYPE);
+        this.movieId = getColumnInt(cursor, TrailerColumns.MOVIE_ID);
     }
 
-    protected MovieVideoEntity(Parcel in) {
-        this.videoId = in.readString();
-        this.languageCode = in.readString();
-        this.countryCode = in.readString();
-        this.key = in.readString();
-        this.name = in.readString();
-        this.site = in.readString();
-        this.size = in.readInt();
-        this.type = in.readString();
+    public static ContentValues convert(MovieVideoEntity movieVideoEntity, int movieId) {
+        ContentValues content = new ContentValues();
+        content.put(TrailerColumns._ID, movieVideoEntity.id);
+        content.put(TrailerColumns.ISO6391, movieVideoEntity.iso6391);
+        content.put(TrailerColumns.ISO31661, movieVideoEntity.iso31661);
+        content.put(TrailerColumns.KEY, movieVideoEntity.key);
+        content.put(TrailerColumns.NAME, movieVideoEntity.name);
+        content.put(TrailerColumns.SITE, movieVideoEntity.site);
+        content.put(TrailerColumns.SIZE, movieVideoEntity.size);
+        content.put(TrailerColumns.TYPE, movieVideoEntity.type);
+        content.put(TrailerColumns.MOVIE_ID, movieId);
+        return content;
     }
 
-    public String getVideoId() {
-        return videoId;
+
+    public String getId() {
+        return id;
     }
 
-    public void setVideoId(String videoId) {
-        this.videoId = videoId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getLanguageCode() {
-        return languageCode;
+    public String getIso6391() {
+        return iso6391;
     }
 
-    public void setLanguageCode(String languageCode) {
-        this.languageCode = languageCode;
+    public void setIso6391(String iso6391) {
+        this.iso6391 = iso6391;
     }
 
-    public String getCountryCode() {
-        return countryCode;
+    public String getIso31661() {
+        return iso31661;
     }
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
+    public void setIso31661(String iso31661) {
+        this.iso31661 = iso31661;
     }
 
     public String getKey() {
@@ -88,11 +113,11 @@ public class MovieVideoEntity {
         this.site = site;
     }
 
-    public int getSize() {
+    public Integer getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(Integer size) {
         this.size = size;
     }
 
@@ -104,7 +129,11 @@ public class MovieVideoEntity {
         this.type = type;
     }
 
-    public boolean isYoutubeVideo() {
-        return site.toLowerCase(Locale.US).equals(SITE_YOUTUBE.toLowerCase(Locale.US));
+    public int getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
     }
 }

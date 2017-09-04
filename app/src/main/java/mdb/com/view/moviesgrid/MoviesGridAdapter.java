@@ -1,8 +1,10 @@
 package mdb.com.view.moviesgrid;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,19 +20,28 @@ import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.entity.MovieEntity;
 import java.util.ArrayList;
 import java.util.List;
+import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
+import mdb.com.view.moviesgrid.util.OnItemClickListener;
 
 /**
  * @author james on 7/23/17.
  */
 
-public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.ViewHolder> {
+public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapter.ViewHolder> {
 
     private List<MovieEntity> movieEntities = new ArrayList<>();
-    private MovieClickListener listener;
+    private OnItemClickListener listener;
+    private Context context;
 
-    public MoviesGridAdapter(MovieClickListener listener) {
+    public MoviesGridAdapter(Context context, Cursor cursor) {
+        super(cursor);
+        this.context = context;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
+
 
     public interface MovieClickListener {
         void movieClicked(MovieEntity movieEntity, ImageView moviePoster);
@@ -43,14 +54,17 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setMovieItem(movieEntities.get(position), position);
-    }
-
-    @Override
     public int getItemCount() {
         if (movieEntities == null) return 0;
         return movieEntities.size();
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
+        if (cursor != null) {
+            MovieEntity movieEntity = MovieEntity.fromCursor(cursor);
+            viewHolder.setMovieItem(movieEntity);
+        }
     }
 
     public void setMovieList(List<MovieEntity> movieList) {
@@ -68,11 +82,29 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
         return movieEntities.get(position);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    @Nullable
+    public MovieEntity getItem(int position) {
+        Cursor cursor = getCursor();
+        if (cursor == null) {
+            return null;
+        }
+        if (position < 0 || position > cursor.getCount()) {
+            return null;
+        }
+        cursor.moveToFirst();
+        for (int i = 0; i < position; i++) {
+            cursor.moveToNext();
+        }
+        return MovieEntity.fromCursor(cursor);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @Bind(R.id.movie_poster)
         ImageView moviePoster;
         private final Context context;
+
+        private OnItemClickListener onItemClickListener;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -80,8 +112,8 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
             context = itemView.getContext();
         }
 
-        public void setMovieItem(final MovieEntity movieItem, final int position) {
-            ViewCompat.setTransitionName(moviePoster, getMovieEntity(position).getTitle());
+        public void setMovieItem(final MovieEntity movieItem) {
+            ViewCompat.setTransitionName(moviePoster, movieItem.getTitle());
             Glide.with(context)
                     .load(Uri.parse(ApiConstants.BASE_IMAGE_URL + movieItem.getPosterPath()))
                     .placeholder(Color.GRAY)
@@ -89,11 +121,14 @@ public class MoviesGridAdapter extends RecyclerView.Adapter<MoviesGridAdapter.Vi
                     .centerCrop()
                     .crossFade()
                     .into(moviePoster);
+            itemView.setOnClickListener(this);
+        }
 
-            moviePoster.setOnClickListener(v -> {
-                if (listener == null) return;
-                listener.movieClicked(movieItem, moviePoster);
-            });
+        @Override
+        public void onClick(View v) {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(v, getAdapterPosition());
+            }
         }
     }
 }
