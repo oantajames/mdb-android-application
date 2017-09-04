@@ -17,11 +17,15 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 import mdb.com.R;
+import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.di.HasComponent;
 import mdb.com.di.component.DaggerMoviesGridComponent;
 import mdb.com.di.component.MoviesGridComponent;
 import mdb.com.di.module.MoviesGridModule;
+import mdb.com.sync.Sort;
 import mdb.com.view.BaseActivity;
+import mdb.com.view.moviedetails.MovieDetailsActivity;
+import mdb.com.view.moviesgrid.util.OnItemSelectedListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +35,7 @@ import static mdb.com.view.moviesgrid.FragmentMoviesList.MY_FAVORITES;
 import static mdb.com.view.moviesgrid.FragmentMoviesList.TOP_RATED;
 import static mdb.com.view.moviesgrid.FragmentMoviesList.newInstance;
 
-public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent> {
+public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent>, OnItemSelectedListener {
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, MoviesGridActivity.class);
@@ -102,9 +106,9 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(newInstance(MOST_POPULAR), getString(R.string.most_popular));
-        adapter.addFrag(newInstance(TOP_RATED), getString(R.string.top_rated));
-        adapter.addFrag(newInstance(MY_FAVORITES), getString(R.string.my_favorites));
+        adapter.addFrag(newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.most_popular));
+        adapter.addFrag(newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.top_rated));
+        adapter.addFrag(newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.my_favorites));
         viewPager.setAdapter(adapter);
     }
 
@@ -130,6 +134,13 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
 
             }
         });
+    }
+
+    @Override
+    public void onItemSelected(MovieEntity movie) {
+        Intent intent = new Intent(this, MovieDetailsActivity.class);
+        intent.putExtra(MOVIE_ENTITY, movie);
+        startActivity(intent);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

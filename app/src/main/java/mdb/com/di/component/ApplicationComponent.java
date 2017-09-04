@@ -1,13 +1,18 @@
 package mdb.com.di.component;
 
 import android.content.Context;
+
 import mdb.com.MdbApplication;
+import mdb.com.data.api.MoviesService;
 import mdb.com.di.module.ApplicationModule;
 import mdb.com.di.module.NetworkModule;
 import mdb.com.loaders.MoviesLoader;
 import mdb.com.view.BaseActivity;
+
 import com.squareup.okhttp.OkHttpClient;
+
 import dagger.Component;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -19,6 +24,8 @@ import javax.inject.Singleton;
 public interface ApplicationComponent {
 
     Context context();
+
+    MoviesService service();
 
     MoviesLoader moviesLoader();
 

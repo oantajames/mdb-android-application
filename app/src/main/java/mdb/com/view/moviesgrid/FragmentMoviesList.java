@@ -1,51 +1,55 @@
 package mdb.com.view.moviesgrid;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mdb.com.R;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.di.component.MoviesGridComponent;
-import mdb.com.presenter.moviesgrid.MoviesGridPresenter;
-import mdb.com.presenter.moviesgrid.MoviesGridPresenterImpl;
+import mdb.com.sync.Sort;
 import mdb.com.sync.SortHelper;
-import mdb.com.util.BaseFragment;
+import mdb.com.sync.MoviesService;
 import mdb.com.view.moviedetails.MovieDetailsActivity;
-import java.util.List;
+
+
 import javax.inject.Inject;
+
 import mdb.com.view.moviesgrid.util.AbstractMoviesGridFragment;
+import mdb.com.view.moviesgrid.util.EndlessRecyclerViewOnScrollListener;
 
 /**
  * @author james on 8/31/17.
  */
 
-public class FragmentMoviesList extends AbstractMoviesGridFragment implements
-        MoviesGridPresenterImpl.Delegate, MoviesGridAdapter.MovieClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class FragmentMoviesList extends AbstractMoviesGridFragment implements MoviesGridAdapter.MovieClickListener {
 
-    public static FragmentMoviesList newInstance(int state) {
+    public static FragmentMoviesList newInstance(String state) {
         FragmentMoviesList fragmentMoviesList = new FragmentMoviesList();
         Bundle bundle = new Bundle();
-        bundle.putInt(STATE, state);
+        bundle.putString(STATE, state);
         fragmentMoviesList.setArguments(bundle);
         return fragmentMoviesList;
     }
 
-    //todo - finish the fragment implementation
+    public static final String BROADCAST_SORT_PREFERENCE_CHANGED = "SortPreferenceChanged";
 
     public static final int MOST_POPULAR = 11234;
     public static final int TOP_RATED = 21234;
@@ -61,17 +65,51 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements
     SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
-    MoviesGridPresenter presenter;
-
-    @Inject
     SortHelper sortHelper;
+    @Inject
+    MoviesService moviesService;
 
-    private MoviesGridAdapter adapter;
+    private EndlessRecyclerViewOnScrollListener endlessRecyclerViewOnScrollListener;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(MoviesService.BROADCAST_UPDATE_FINISHED)) {
+                if (!intent.getBooleanExtra(MoviesService.EXTRA_IS_SUCCESSFUL_UPDATED, true)) {
+                    Snackbar.make(swipeRefreshLayout, R.string.error_failed_to_update_movies,
+                            Snackbar.LENGTH_LONG)
+                            .show();
+                }
+                swipeRefreshLayout.setRefreshing(false);
+                endlessRecyclerViewOnScrollListener.setLoading(false);
+                updateGridLayout();
+            } else if (action.equals(BROADCAST_SORT_PREFERENCE_CHANGED)) {
+                recyclerView.smoothScrollToPosition(0);
+                restartLoader();
+            }
+        }
+    };
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent(MoviesGridComponent.class).inject(this);
+        sortHelper.saveSortByPreference(Sort.fromString(getArguments().getString(STATE, String.valueOf(Sort.MOST_POPULAR))));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MoviesService.BROADCAST_UPDATE_FINISHED);
+        intentFilter.addAction(BROADCAST_SORT_PREFERENCE_CHANGED);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, intentFilter);
+        if (endlessRecyclerViewOnScrollListener != null) {
+            endlessRecyclerViewOnScrollListener.setLoading(moviesService.isLoading());
+        }
+        swipeRefreshLayout.setRefreshing(moviesService.isLoading());
     }
 
     @NonNull
@@ -82,9 +120,11 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements
 
     @Override
     protected void onCursorLoaded(Cursor data) {
-        getAdapter().changeCursor(data);
-        if (data != null || data.getCount() == 0) {
-            rerfeshMovies();
+        if (getAdapter()!=null) {
+            getAdapter().changeCursor(data);
+        }
+        if (data == null || data.getCount() == 0) {
+            refreshMovies();
         }
     }
 
@@ -96,12 +136,19 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements
 
     @Override
     protected void onRefreshAction() {
-
+        refreshMovies();
     }
 
     @Override
     protected void onMoviesGridInitialisationFinished() {
-
+        endlessRecyclerViewOnScrollListener = new EndlessRecyclerViewOnScrollListener(getGridLayoutManager()) {
+            @Override
+            public void onLoadMore() {
+                swipeRefreshLayout.setRefreshing(true);
+                moviesService.loadMoreMovies();
+            }
+        };
+        recyclerView.addOnScrollListener(endlessRecyclerViewOnScrollListener);
     }
 
     @Nullable
@@ -109,31 +156,7 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(mdb.com.R.layout.fragment_movies_list, container, false);
         ButterKnife.bind(this, view);
-        initMovieGrid(getArguments().getInt(STATE));
         return view;
-    }
-
-    private void initMovieGrid(int state) {
-        adapter = new MoviesGridAdapter(this);
-        getMovies(state);
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-    }
-
-    private void getMovies(int state) {
-        progressBar.setVisibility(View.VISIBLE);
-        switch (state) {
-            case MOST_POPULAR:
-                presenter.getPopularMovies(getActivity().getLoaderManager(), this, MOST_POPULAR);
-                break;
-            case TOP_RATED:
-                presenter.getTopRatedMovies(getActivity().getLoaderManager(), this, TOP_RATED);
-                break;
-            case MY_FAVORITES:
-                presenter.getPopularMovies(getActivity().getLoaderManager(), this, MY_FAVORITES);
-                break;
-        }
     }
 
     @Override
@@ -143,24 +166,4 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements
         startActivity(intent);
     }
 
-    @Override
-    public void setMoviesList(List<MovieEntity> result) {
-        adapter.setMovieList(result);
-        progressBar.setVisibility(View.GONE);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
 }

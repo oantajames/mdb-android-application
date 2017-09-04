@@ -1,6 +1,7 @@
 package mdb.com.di.module;
 
 import android.content.Context;
+
 import mdb.com.BuildConfig;
 import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.MoviesService;
@@ -8,13 +9,16 @@ import mdb.com.loaders.MoviesLoader;
 import mdb.com.util.loader.MoviesInteractor;
 import dagger.Module;
 import dagger.Provides;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
+
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -57,9 +61,9 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    public Retrofit providesRetrofit(OkHttpClient okHttpClient, Converter.Factory converterFactory) {
+    public Retrofit providesRetrofit(OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
-                .addConverterFactory(converterFactory)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .baseUrl(ApiConstants.BASE_API)
                 .client(okHttpClient)
                 .build();

@@ -18,7 +18,7 @@ import rx.Observable;
 public interface MoviesService {
 
     @GET("movie/popular")
-    Call<MovieResponse> getPopularMoviesList();
+    Observable<MovieResponse> getPopularMoviesList();
 
     @GET("movie/top_rated")
     Call<MovieResponse> getTopRateMoviesList();

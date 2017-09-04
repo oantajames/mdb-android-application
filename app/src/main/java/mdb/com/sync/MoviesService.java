@@ -9,9 +9,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
 import javax.inject.Inject;
+
 import mdb.com.data.db.MoviesContract;
-import mdb.com.data.api.MoviesService;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
 import mdb.com.loaders.MoviesLoader;
@@ -20,9 +21,9 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class SyncService {
+public class MoviesService {
 
-    private static final String TAG = SyncService.class.getSimpleName();
+    private static final String TAG = MoviesService.class.getSimpleName();
 
     public static final String BROADCAST_UPDATE_FINISHED = "UpdateFinished";
     public static final String EXTRA_IS_SUCCESSFUL_UPDATED = "isSuccessfulUpdated";
@@ -32,9 +33,10 @@ public class SyncService {
 
     private volatile boolean loading = false;
 
-    MoviesLoader moviesLoader;
-    MoviesService service;
-    Context context;
+    private SortHelper sortHelper;
+
+    private mdb.com.data.api.MoviesService service;
+    private Context context;
 
 
     public static final String ACTION_UPDATE_MOVIE = TAG + ".updateMovie";
@@ -43,25 +45,38 @@ public class SyncService {
     public static final String EXTRA = TAG + ".contentValues";
 
     @Inject
-    public SyncService(Context context, MoviesLoader moviesLoader, MoviesService service) {
-        this.moviesLoader = moviesLoader;
+    public MoviesService(Context context,
+                         SortHelper sortHelper, mdb.com.data.api.MoviesService service) {
         this.service = service;
         this.context = context;
+        this.sortHelper = sortHelper;
     }
 
-    public static void updateMovie(Context context, Uri uri, ContentValues values) {
-        Intent intent = new Intent(context, SyncService.class);
-        intent.setAction(ACTION_UPDATE_MOVIE);
-        intent.setData(uri);
-        intent.putExtra(EXTRA, values);
-        context.startService(intent);
+
+    public void refreshMovies() {
+        if (loading) {
+            return;
+        }
+        loading = true;
+        String sort = sortHelper.getSortByPreference().toString();
+        callDiscoverMovies(sort, null);
     }
 
-    public static void fetch(Context context, Bundle bundle, String action) {
-        Intent intent = new Intent(context, SyncService.class);
-        intent.setAction(action);
-        intent.putExtras(bundle);
-        context.startService(intent);
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public void loadMoreMovies() {
+        if (loading) {
+            return;
+        }
+        loading = true;
+        String sort = sortHelper.getSortByPreference().toString();
+        Uri uri = sortHelper.getSortedMoviesUri();
+        if (uri == null) {
+            return;
+        }
+        callDiscoverMovies(sort, getCurrentPage(uri) + 1);
     }
 
     private void callDiscoverMovies(String sort, @Nullable Integer page) {

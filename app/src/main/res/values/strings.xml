@@ -11,4 +11,6 @@
     <string name="most_popular">Most Popular</string>
     <string name="my_favorites">My Favorites</string>
 
+    <string name="error_failed_to_update_movies">Failed to update movies</string>
+
 </resources>

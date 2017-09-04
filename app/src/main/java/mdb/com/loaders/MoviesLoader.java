@@ -1,13 +1,16 @@
 package mdb.com.loaders;
 
 import android.content.Context;
+
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.MoviesService;
 import mdb.com.data.api.entity.MovieVideoEntity;
 import mdb.com.data.api.entity.ReviewEntity;
 import mdb.com.util.loader.MoviesInteractor;
 import mdb.com.util.loader.RetrofitLoader;
+
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -50,13 +53,4 @@ public class MoviesLoader {
     }
 
 
-    public RetrofitLoader getMovies(int sortType) {
-        return new RetrofitLoader<List<MovieEntity>, MoviesService>(context, service) {
-
-            @Override
-            public List<MovieEntity> call(MoviesService service) {
-                return interactor.createMoviesCall(sortType, service);
-            }
-        };
-    }
 }
