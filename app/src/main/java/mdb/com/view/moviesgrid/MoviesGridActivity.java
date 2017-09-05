@@ -1,18 +1,17 @@
 package mdb.com.view.moviesgrid;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
+import android.widget.Toolbar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -30,18 +29,11 @@ import mdb.com.view.moviesgrid.util.OnItemSelectedListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mdb.com.view.moviesgrid.FragmentMoviesList.MOST_POPULAR;
-import static mdb.com.view.moviesgrid.FragmentMoviesList.MY_FAVORITES;
-import static mdb.com.view.moviesgrid.FragmentMoviesList.TOP_RATED;
-import static mdb.com.view.moviesgrid.FragmentMoviesList.newInstance;
-
 public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent>, OnItemSelectedListener {
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, MoviesGridActivity.class);
     }
-
-    public static final int MOVIE_LOADER_ID = 10;
 
     public static String MOVIE_ENTITY = "movie_entity";
 
@@ -61,9 +53,10 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         inject();
+        //TODO : fix the freaking toolbar layout!
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setActionBar(toolbar);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -105,10 +98,10 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.most_popular));
-        adapter.addFrag(newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.top_rated));
-        adapter.addFrag(newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.my_favorites));
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
+        adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.top_rated));
+        adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.most_popular));
+        adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.my_favorites));
         viewPager.setAdapter(adapter);
     }
 
@@ -143,7 +136,7 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         startActivity(intent);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    class ViewPagerAdapter extends android.support.v13.app.FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -152,7 +145,7 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         }
 
         @Override
-        public Fragment getItem(int position) {
+        public android.app.Fragment getItem(int position) {
             return mFragmentList.get(position);
         }
 

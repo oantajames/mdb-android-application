@@ -52,7 +52,7 @@ public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdap
             Glide.with(context)
                     .load(String.format(YOUTUBE_THUMBNAIL, video.getKey()))
                     .placeholder(Color.GRAY)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
                     .crossFade()
                     .into(holder.movieVideoThumbnail);

@@ -6,7 +6,6 @@ import mdb.com.MdbApplication;
 import mdb.com.data.api.MoviesService;
 import mdb.com.di.module.ApplicationModule;
 import mdb.com.di.module.NetworkModule;
-import mdb.com.loaders.MoviesLoader;
 import mdb.com.view.BaseActivity;
 
 import com.squareup.okhttp.OkHttpClient;
@@ -26,8 +25,6 @@ public interface ApplicationComponent {
     Context context();
 
     MoviesService service();
-
-    MoviesLoader moviesLoader();
 
     @Named("frescoOkHttpClient")
     OkHttpClient frescoOkHttpClient();

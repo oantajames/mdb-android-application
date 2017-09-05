@@ -25,8 +25,8 @@ public final class SortHelper {
         return Sort.fromString(sort);
     }
 
-    public Uri getSortedMoviesUri() {
-        Sort sort = getSortByPreference();
+    public Uri getSortedMoviesUri(String sortString) {
+        Sort sort = Sort.fromString(sortString);
         switch (sort) {
             case MOST_POPULAR:
                 return MoviesContract.MostPopularMoviesEntry.CONTENT_URI;

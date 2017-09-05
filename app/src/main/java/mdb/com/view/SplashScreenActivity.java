@@ -16,7 +16,7 @@ import mdb.com.view.moviesgrid.MoviesGridActivity;
 
 public class SplashScreenActivity extends BaseActivity {
 
-    private static final int delay = 5000;
+    private static final int delay = 3000;
 
     @Bind(R.id.splash_screen_layout)
     ViewGroup layoutSplashScreen;

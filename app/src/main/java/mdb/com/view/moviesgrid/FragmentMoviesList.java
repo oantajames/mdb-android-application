@@ -11,22 +11,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import mdb.com.R;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.di.component.MoviesGridComponent;
+import mdb.com.sync.MoviesRepository;
 import mdb.com.sync.Sort;
 import mdb.com.sync.SortHelper;
-import mdb.com.sync.MoviesService;
 import mdb.com.view.moviedetails.MovieDetailsActivity;
 
 
@@ -39,7 +34,7 @@ import mdb.com.view.moviesgrid.util.EndlessRecyclerViewOnScrollListener;
  * @author james on 8/31/17.
  */
 
-public class FragmentMoviesList extends AbstractMoviesGridFragment implements MoviesGridAdapter.MovieClickListener {
+public class FragmentMoviesList extends AbstractMoviesGridFragment {
 
     public static FragmentMoviesList newInstance(String state) {
         FragmentMoviesList fragmentMoviesList = new FragmentMoviesList();
@@ -56,18 +51,12 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements Mo
     public static final int MY_FAVORITES = 31223;
 
     public static final String STATE = "STATE";
-
-    @Bind(mdb.com.R.id.movies_recycler_view)
-    RecyclerView recyclerView;
-    @Bind(mdb.com.R.id.grid_progress_bar)
-    ProgressBar progressBar;
-    @Bind(R.id.swipe_layout)
-    SwipeRefreshLayout swipeRefreshLayout;
+    private String sort;
 
     @Inject
     SortHelper sortHelper;
     @Inject
-    MoviesService moviesService;
+    MoviesRepository moviesRepository;
 
     private EndlessRecyclerViewOnScrollListener endlessRecyclerViewOnScrollListener;
 
@@ -75,8 +64,8 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements Mo
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(MoviesService.BROADCAST_UPDATE_FINISHED)) {
-                if (!intent.getBooleanExtra(MoviesService.EXTRA_IS_SUCCESSFUL_UPDATED, true)) {
+            if (action.equals(MoviesRepository.BROADCAST_UPDATE_FINISHED)) {
+                if (!intent.getBooleanExtra(MoviesRepository.EXTRA_IS_SUCCESSFUL_UPDATED, true)) {
                     Snackbar.make(swipeRefreshLayout, R.string.error_failed_to_update_movies,
                             Snackbar.LENGTH_LONG)
                             .show();
@@ -91,38 +80,40 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements Mo
         }
     };
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent(MoviesGridComponent.class).inject(this);
-        sortHelper.saveSortByPreference(Sort.fromString(getArguments().getString(STATE, String.valueOf(Sort.MOST_POPULAR))));
+        sort = getArguments().getString(STATE, String.valueOf(Sort.MOST_POPULAR));
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MoviesService.BROADCAST_UPDATE_FINISHED);
+        intentFilter.addAction(MoviesRepository.BROADCAST_UPDATE_FINISHED);
         intentFilter.addAction(BROADCAST_SORT_PREFERENCE_CHANGED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, intentFilter);
         if (endlessRecyclerViewOnScrollListener != null) {
-            endlessRecyclerViewOnScrollListener.setLoading(moviesService.isLoading());
+            endlessRecyclerViewOnScrollListener.setLoading(moviesRepository.isLoading());
         }
-        swipeRefreshLayout.setRefreshing(moviesService.isLoading());
+        swipeRefreshLayout.setRefreshing(moviesRepository.isLoading());
     }
 
     @NonNull
     @Override
     protected Uri getContentUri() {
-        return sortHelper.getSortedMoviesUri();
+        return sortHelper.getSortedMoviesUri(sort);
     }
 
     @Override
     protected void onCursorLoaded(Cursor data) {
-        if (getAdapter()!=null) {
-            getAdapter().changeCursor(data);
-        }
+        getAdapter().changeCursor(data);
         if (data == null || data.getCount() == 0) {
             refreshMovies();
         }
@@ -130,9 +121,8 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements Mo
 
     private void refreshMovies() {
         swipeRefreshLayout.setRefreshing(true);
-        moviesService.refreshMovies();
+        moviesRepository.refreshMovies(sort);
     }
-
 
     @Override
     protected void onRefreshAction() {
@@ -145,25 +135,10 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment implements Mo
             @Override
             public void onLoadMore() {
                 swipeRefreshLayout.setRefreshing(true);
-                moviesService.loadMoreMovies();
+                moviesRepository.loadMoreMovies(sort);
             }
         };
         recyclerView.addOnScrollListener(endlessRecyclerViewOnScrollListener);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(mdb.com.R.layout.fragment_movies_list, container, false);
-        ButterKnife.bind(this, view);
-        return view;
-    }
-
-    @Override
-    public void movieClicked(MovieEntity movieEntity, ImageView moviePoster) {
-        Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
-        intent.putExtra(MoviesGridActivity.MOVIE_ENTITY, movieEntity);
-        startActivity(intent);
     }
 
 }

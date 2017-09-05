@@ -18,11 +18,11 @@ import java.util.HashSet;
 
 public class MoviesProvider extends ContentProvider {
 
-    static final int MOVIES = 100;
-    static final int MOVIE_BY_ID = 101;
-    static final int MOST_POPULAR_MOVIES = 201;
-    static final int TOP_RATED_MOVIES = 202;
-    static final int FAVORITES_MOVIES = 300;
+    static final int MOVIES = 122;
+    static final int MOVIE_BY_ID = 111;
+    static final int MOST_POPULAR_MOVIES = 213;
+    static final int TOP_RATED_MOVIES = 214;
+    static final int FAVORITES_MOVIES = 333;
 
     // movies._id = ?
     private static final String MOVIE_ID_SELECTION =
@@ -39,14 +39,11 @@ public class MoviesProvider extends ContentProvider {
 
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/#", MOVIE_BY_ID);
 
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" +
-                MoviesContract.PATH_MOST_POPULAR, MOST_POPULAR_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_MOST_POPULAR, MOST_POPULAR_MOVIES);
 
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" +
-                MoviesContract.PATH_TOP_RATED, TOP_RATED_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TOP_RATED, TOP_RATED_MOVIES);
 
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" +
-                MoviesContract.PATH_FAVORITES, FAVORITES_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITES, FAVORITES_MOVIES);
     }
 
 
@@ -145,7 +142,7 @@ public class MoviesProvider extends ContentProvider {
 
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         // tableName INNER JOIN movies ON tableName.movie_id = movies._id
-        queryBuilder.setTables(tableName + " INNER JOIN"
+        queryBuilder.setTables(tableName + " INNER JOIN "
                 + MoviesContract.MovieEntry.TABLE_NAME
                 + " ON " + tableName + "."
                 + MoviesContract.COLUMN_MOVIE_ID_KEY + " = "
@@ -175,6 +172,7 @@ public class MoviesProvider extends ContentProvider {
                 } else {
                     throw new android.database.SQLException(FAILED_TO_INSERT_ROW_INTO + uri);
                 }
+                break;
             case MOST_POPULAR_MOVIES:
                 id = db.insert(MoviesContract.MostPopularMoviesEntry.TABLE_NAME, null, values);
                 if (id > 0) {

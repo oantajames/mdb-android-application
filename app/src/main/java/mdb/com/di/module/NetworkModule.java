@@ -1,12 +1,8 @@
 package mdb.com.di.module;
 
-import android.content.Context;
-
 import mdb.com.BuildConfig;
 import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.MoviesService;
-import mdb.com.loaders.MoviesLoader;
-import mdb.com.util.loader.MoviesInteractor;
 import dagger.Module;
 import dagger.Provides;
 
@@ -63,6 +59,7 @@ public class NetworkModule {
     @Singleton
     public Retrofit providesRetrofit(OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .baseUrl(ApiConstants.BASE_API)
                 .client(okHttpClient)
@@ -79,18 +76,6 @@ public class NetworkModule {
     @Singleton
     public MoviesService provideMoviesService(Retrofit retrofit) {
         return retrofit.create(MoviesService.class);
-    }
-
-    @Provides
-    @Singleton
-    public MoviesLoader provideMoviesLoader(Context context, MoviesService service, MoviesInteractor interactor) {
-        return new MoviesLoader(context, service, interactor);
-    }
-
-    @Provides
-    @Singleton
-    public MoviesInteractor provideMoviesInteractor() {
-        return new MoviesInteractor();
     }
 
 }

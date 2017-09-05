@@ -1,16 +1,15 @@
 package mdb.com.view.moviesgrid.util;
 
 import android.annotation.SuppressLint;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -31,18 +30,14 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     private static final int LOADER_ID = 0;
 
     @Bind(R.id.swipe_layout)
-    SwipeRefreshLayout swipeRefreshLayout;
+    public SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.movies_recycler_view)
-    RecyclerView recyclerView;
+    public RecyclerView recyclerView;
 
     private MoviesGridAdapter adapter;
 
     private OnItemSelectedListener onItemSelectedListener;
     private GridLayoutManager gridLayoutManager;
-
-    public AbstractMoviesGridFragment() {
-        // Required empty public constructor
-    }
 
     @NonNull
     protected abstract Uri getContentUri();
@@ -71,14 +66,12 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     }
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies_list, container, false);
         ButterKnife.bind(this, rootView);
 
         initSwipeRefreshLayout();
         initMoviesGrid();
-
         return rootView;
     }
 
@@ -99,15 +92,13 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     protected void updateGridLayout() {
         if (recyclerView.getAdapter() == null || recyclerView.getAdapter().getItemCount() == 0) {
             recyclerView.setVisibility(View.GONE);
-            //todo-no movies
         } else {
             recyclerView.setVisibility(View.VISIBLE);
-//            noMoviesView.setVisibility(View.GONE);
         }
     }
 
     protected void initMoviesGrid() {
-        adapter = new MoviesGridAdapter(getContext(), null);
+        adapter = new MoviesGridAdapter(null);
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());

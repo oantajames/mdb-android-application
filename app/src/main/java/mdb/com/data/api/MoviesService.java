@@ -24,10 +24,10 @@ public interface MoviesService {
     Call<MovieResponse> getTopRateMoviesList();
 
     @GET("movie/{id}/reviews")
-    Call<MovieReviewsResponse> getMovieReviews(@Path("id") String movieId);
+    Observable<MovieReviewsResponse> getMovieReviews(@Path("id") String movieId);
 
     @GET("movie/{id}/videos")
-    Call<MovieVideosResponse> getMovieVideos(@Path("id") String movieId);
+    Observable<MovieVideosResponse> getMovieVideos(@Path("id") String movieId);
 
     @GET("discover/movie")
     Observable<DiscoverAndSearchResponse<MovieEntity>> discoverMovies(@Query("sort_by") String sortBy,

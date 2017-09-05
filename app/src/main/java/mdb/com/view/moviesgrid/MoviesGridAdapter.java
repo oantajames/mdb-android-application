@@ -18,8 +18,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import mdb.com.R;
 import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.entity.MovieEntity;
-import java.util.ArrayList;
-import java.util.List;
 import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 import mdb.com.view.moviesgrid.util.OnItemClickListener;
 
@@ -29,34 +27,20 @@ import mdb.com.view.moviesgrid.util.OnItemClickListener;
 
 public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapter.ViewHolder> {
 
-    private List<MovieEntity> movieEntities = new ArrayList<>();
     private OnItemClickListener listener;
-    private Context context;
 
-    public MoviesGridAdapter(Context context, Cursor cursor) {
+    public MoviesGridAdapter(Cursor cursor) {
         super(cursor);
-        this.context = context;
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-
-    public interface MovieClickListener {
-        void movieClicked(MovieEntity movieEntity, ImageView moviePoster);
-    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_movie_grid, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public int getItemCount() {
-        if (movieEntities == null) return 0;
-        return movieEntities.size();
+        return new ViewHolder(view, listener);
     }
 
     @Override
@@ -65,21 +49,6 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
             MovieEntity movieEntity = MovieEntity.fromCursor(cursor);
             viewHolder.setMovieItem(movieEntity);
         }
-    }
-
-    public void setMovieList(List<MovieEntity> movieList) {
-        if (movieList != null) {
-            this.movieEntities.clear();
-            this.movieEntities = movieList;
-            this.notifyDataSetChanged();
-        }
-    }
-
-    public MovieEntity getMovieEntity(int position) {
-        if (movieEntities.get(position) == null) {
-            throw new IllegalArgumentException("Invalid position");
-        }
-        return movieEntities.get(position);
     }
 
     @Nullable
@@ -106,10 +75,11 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
 
         private OnItemClickListener onItemClickListener;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, OnItemClickListener listener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             context = itemView.getContext();
+            this.onItemClickListener = listener;
         }
 
         public void setMovieItem(final MovieEntity movieItem) {

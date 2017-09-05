@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
 
 public class MoviesContract {
 
-    public static final String CONTENT_AUTHORITY = "mdb.com.data.db";
+    public static final String CONTENT_AUTHORITY = "mdb.com.data";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_MOVIES = "movies";
@@ -50,12 +50,10 @@ public class MoviesContract {
         public static final String IS_ADULT = "is_adult";
         public static final String OVERVIEW = "overview";
         public static final String RELEASE_DATE = "release_date";
-        public static final String IS_FAVORITE = "is_favorite";
-        public static final String IS_TOP_RATED = "is_top_rated";
 
-        public static final String[] COLUMNS = {VOTE_COUNT, HAS_VIDEO, VOTE_AVERAGE, TITLE,
-                POPULARITY, POSTER_PATH, ORIGINAL_LANGUAGE, ORIGINAL_TITLE, BACKDROP_PATH,
-                IS_ADULT, OVERVIEW, RELEASE_DATE, IS_FAVORITE, IS_TOP_RATED};
+        public static final String[] COLUMNS = {_ID, BACKDROP_PATH, HAS_VIDEO, IS_ADULT,
+                ORIGINAL_LANGUAGE, ORIGINAL_TITLE, OVERVIEW, POPULARITY, POSTER_PATH,
+                RELEASE_DATE, TITLE, VOTE_AVERAGE, VOTE_COUNT};
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -70,8 +68,8 @@ public class MoviesContract {
         }
 
         public static final String SQL_CREATE_TABLE_MOVIES = String.format("CREATE TABLE %s"
-                        + "(%S INTEGER PRIMARY KEY, %s TEXT, %s BOOLEAN, %s BOOLEAN, %s TEXT, %s TEXT,"
-                        + "%s TEXT, %s DOUBLE, %s TEXT, %s TEXT, %s TEXT,   %s DOUBLE, %s INTEGER, %s BOOLEAN)",
+                        + " (%s INTEGER PRIMARY KEY, %s TEXT, %s BOOLEAN, %s BOOLEAN, %s TEXT, %s TEXT,"
+                        + "%s TEXT, %s DOUBLE, %s TEXT, %s TEXT, %s TEXT, %s DOUBLE, %s INTEGER )",
                 MoviesContract.TABLE_MOVIES,
                 MoviesContract.MovieEntry._ID,
                 MoviesContract.MovieEntry.BACKDROP_PATH,
@@ -85,8 +83,7 @@ public class MoviesContract {
                 MoviesContract.MovieEntry.RELEASE_DATE,
                 MoviesContract.MovieEntry.TITLE,
                 MoviesContract.MovieEntry.VOTE_AVERAGE,
-                MoviesContract.MovieEntry.VOTE_COUNT,
-                MoviesContract.MovieEntry.IS_FAVORITE);
+                MoviesContract.MovieEntry.VOTE_COUNT);
     }
 
     // TOP RATED MOVIES TABLE
@@ -107,13 +104,16 @@ public class MoviesContract {
                 .appendPath(PATH_TOP_RATED)
                 .build();
 
-        public static final String CONTENT_DIR_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
-                        + "/" + PATH_TOP_RATED;
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
+                + "/" + PATH_TOP_RATED;
 
-        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(%s INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " %s INTEGER NOT NULL, FOREIGN KEY (" + COLUMN_MOVIE_ID_KEY + ") REFERENCES " + MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + ")" + ");";
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" +
+                        _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_MOVIE_ID_KEY + " INTEGER NOT NULL, " +
 
+                        " FOREIGN KEY (" + COLUMN_MOVIE_ID_KEY + ") REFERENCES " +
+                        MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + ") " + " );";
     }
 
     // MOST POPULAR MOVIES TABLE
@@ -134,15 +134,16 @@ public class MoviesContract {
                 .appendPath(PATH_MOST_POPULAR)
                 .build();
 
-        public static final String CONTENT_DIR_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
-                        + "/" + PATH_MOST_POPULAR;
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
+                + "/" + PATH_MOST_POPULAR;
 
-        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME
-                + "(%s INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + " %s INTEGER NOT NULL, FOREIGN KEY (" + COLUMN_MOVIE_ID_KEY
-                + ") REFERENCES " + MovieEntry.TABLE_NAME
-                + " (" + MovieEntry._ID + ")" + ");";
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" +
+                        _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_MOVIE_ID_KEY + " INTEGER NOT NULL, " +
+
+                        " FOREIGN KEY (" + COLUMN_MOVIE_ID_KEY + ") REFERENCES " +
+                        MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + ") " + " );";
 
     }
 
@@ -164,15 +165,16 @@ public class MoviesContract {
                 .appendPath(PATH_MOST_POPULAR)
                 .build();
 
-        public static final String CONTENT_DIR_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
-                        + "/" + PATH_FAVORITES;
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
+                + "/" + PATH_FAVORITES;
 
-        public static final String SQL_CREATE_TABLE = "CREATE TABLE "
-                + TABLE_NAME + "(%s INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + " %s INTEGER NOT NULL, FOREIGN KEY ("
-                + COLUMN_MOVIE_ID_KEY + ") REFERENCES "
-                + MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + ")" + ");";
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" +
+                        _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_MOVIE_ID_KEY + " INTEGER NOT NULL, " +
+
+                        " FOREIGN KEY (" + COLUMN_MOVIE_ID_KEY + ") REFERENCES " +
+                        MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + ") " + " );";
     }
 
 
@@ -193,11 +195,6 @@ public class MoviesContract {
         public static final String TYPE = "type";
         public static final String MOVIE_ID = "movie_id";
     }
-
-    public static final Uri CONTENT_URI_MOVIES = new Uri.Builder().scheme("content")
-            .authority(CONTENT_AUTHORITY)
-            .appendPath(TABLE_MOVIES)
-            .build();
 
     public static final Uri CONTENT_URI_REVIEWS = new Uri.Builder().scheme("content")
             .authority(CONTENT_AUTHORITY)

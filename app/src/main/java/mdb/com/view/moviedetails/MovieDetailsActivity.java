@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,13 +23,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.drawee.view.SimpleDraweeView;
 import mdb.com.R;
+import mdb.com.data.api.MoviesService;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.entity.MovieVideoEntity;
 import mdb.com.data.api.entity.ReviewEntity;
+import mdb.com.data.api.reponse.MovieReviewsResponse;
+import mdb.com.data.api.reponse.MovieVideosResponse;
 import mdb.com.di.component.DaggerMovieDetailsComponent;
 import mdb.com.di.module.MovieDetailsModule;
-import mdb.com.presenter.moviedetails.MovieDetailsPresenter;
-import mdb.com.presenter.moviedetails.MovieDetailsPresenterImpl;
 import mdb.com.util.SharedPreferencesUtil;
 import mdb.com.view.BaseActivity;
 import mdb.com.view.moviedetails.reviews.MovieReviewsAdapter;
@@ -41,6 +41,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import uk.co.deanwild.flowtextview.FlowTextView;
 
 import static mdb.com.data.api.ApiConstants.BASE_BACKDROP_URL;
@@ -50,16 +53,14 @@ import static mdb.com.data.api.ApiConstants.BASE_IMAGE_URL;
  * @author james on 8/1/17.
  */
 
-public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPresenterImpl.PresenterPaletteListener, MovieDetailsPresenterImpl.Delegate {
+public class MovieDetailsActivity extends BaseActivity {
 
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
 
-    public static final int MOVIE_TRAILERS_LOADER_ID = 11;
-
-    public static final int MOVIE_REVIEWS_LOADER_ID = 12;
+    private static final String LOG_TAG = MovieDetailsActivity.class.getSimpleName();
 
     @Inject
-    MovieDetailsPresenter presenter;
+    MoviesService moviesService;
 
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
 
@@ -86,6 +87,7 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
 
     private MovieTrailersAdapter movieTrailersAdapter;
     private MovieReviewsAdapter reviewsAdapter;
+    private MovieEntity movieEntity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,15 +96,17 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         setContentView(R.layout.activity_movie_details);
         ButterKnife.bind(this);
         setFlowTextViewAppearance();
-        MovieEntity movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
+        movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
         movieTrailersAdapter = new MovieTrailersAdapter(this);
         reviewsAdapter = new MovieReviewsAdapter();
-        if (movieEntity != null) {
-            presenter.onCreate(Uri.parse(BASE_IMAGE_URL + movieEntity.getBackdropPath()), this, this);
-            presenter.getMovieTrailers(getLoaderManager(), String.valueOf(movieEntity.getId()));
-            presenter.getMovieReviews(getLoaderManager(), String.valueOf(movieEntity.getId()));
-        }
         bindViews(movieEntity);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadMovieVideos(movieEntity);
+        loadMovieReviews(movieEntity);
     }
 
     private void setFlowTextViewAppearance() {
@@ -134,7 +138,7 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         Glide.with(this)
                 .load(Uri.parse(BASE_BACKDROP_URL + entity.getBackdropPath()))
                 .placeholder(Color.GRAY)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .crossFade()
                 .into(movieHeader);
@@ -142,12 +146,27 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         Glide.with(this)
                 .load(Uri.parse(BASE_IMAGE_URL + entity.getPosterPath()))
                 .placeholder(Color.GRAY)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .crossFade()
                 .into(moviePoster);
+        initTrailersView();
+        initReviewsView();
+    }
 
+    private void initTrailersView() {
+        movieTrailersAdapter.setOnItemClickListener((itemView, position) -> onMovieVideoClicked(position));
+        trailersRecyclerView.setAdapter(movieTrailersAdapter);
+        trailersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        trailersRecyclerView.setLayoutManager(layoutManager);
+    }
 
+    private void initReviewsView() {
+        reviewsRecyclerView.setAdapter(reviewsAdapter);
+        reviewsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        reviewsRecyclerView.setLayoutManager(layoutManager);
     }
 
     private void setMoviePosterTransition() {
@@ -164,47 +183,11 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
         return parts[0];
     }
 
-    @Override
-    public void onPaletteRetrieved(Palette palette) {
-        Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(Color.BLACK);
-        String hexColor = String.format("#%06X", (0xFFFFFF & palette.getDarkVibrantColor(Color.BLACK)));
-        setGradientViews(Color.BLACK);
-        moviePoster.setBackgroundColor(Color.BLACK);
-        mainBackground.setBackgroundColor(Color.BLACK);
-        SharedPreferencesUtil.saveInt(SharedPreferencesUtil.MOVIE_DETAILS_MAIN_COLOR, (Color.BLACK), this);
-    }
-
     private void setGradientViews(int colorCode) {
         GradientDrawable bottomToTopGradient = new GradientDrawable(
                 GradientDrawable.Orientation.BOTTOM_TOP,
                 new int[]{colorCode, Color.TRANSPARENT});
         backdropGradient.setBackground(bottomToTopGradient);
-    }
-
-    @Override
-    public void onPaletteFailure() {
-        Log.e(TAG, "Palette failure!");
-    }
-
-    @Override
-    public void setMovieTrailers(List<MovieVideoEntity> result) {
-        movieTrailersAdapter.setOnItemClickListener((itemView, position) -> onMovieVideoClicked(position));
-        trailersRecyclerView.setAdapter(movieTrailersAdapter);
-        trailersRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        trailersRecyclerView.setLayoutManager(layoutManager);
-        movieTrailersAdapter.setMovieVideos(result);
-    }
-
-    @Override
-    public void setMovieReviews(List<ReviewEntity> reviews) {
-        reviewsRecyclerView.setAdapter(reviewsAdapter);
-        reviewsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        reviewsRecyclerView.setLayoutManager(layoutManager);
-        reviewsAdapter.setReviews(reviews);
     }
 
     private void onMovieVideoClicked(int position) {
@@ -214,6 +197,55 @@ public class MovieDetailsActivity extends BaseActivity implements MovieDetailsPr
                     Uri.parse("http://www.youtube.com/watch?v=" + video.getKey()));
             startActivity(intent);
         }
+    }
+
+    private void loadMovieVideos(MovieEntity movieEntity) {
+        moviesService.getMovieVideos(String.valueOf(movieEntity.getId()))
+                .compose(bindToLifecycle())
+                .subscribeOn(Schedulers.newThread())
+                .map(MovieVideosResponse::getTrailers)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<MovieVideoEntity>>() {
+                    @Override
+                    public void onCompleted() {
+                        // do nothing
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(LOG_TAG, e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(List<MovieVideoEntity> movieVideos) {
+                        movieTrailersAdapter.setMovieVideos(movieVideos);
+                    }
+                });
+    }
+
+
+    private void loadMovieReviews(MovieEntity movieEntity) {
+        moviesService.getMovieReviews(String.valueOf(movieEntity.getId()))
+                .compose(bindToLifecycle())
+                .subscribeOn(Schedulers.newThread())
+                .map(MovieReviewsResponse::getReviews)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<ReviewEntity>>() {
+                    @Override
+                    public void onCompleted() {
+                        // do nothing
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(LOG_TAG, e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(List<ReviewEntity> movieReviews) {
+                        reviewsAdapter.setReviews(movieReviews);
+                    }
+                });
     }
 }
 

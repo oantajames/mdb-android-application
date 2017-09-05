@@ -77,7 +77,6 @@ public class MovieEntity implements Parcelable {
         this.video = getColumnInt(cursor, MovieEntry.HAS_VIDEO) == 1;
         this.voteAverage = getColumnDouble(cursor, MovieEntry.VOTE_AVERAGE);
         this.voteCount = getColumnInt(cursor, MovieEntry.VOTE_COUNT);
-        this.isFavorite = getColumnInt(cursor, MovieEntry.IS_FAVORITE) == 1;
     }
 
     protected MovieEntity(Parcel in) {
@@ -186,8 +185,6 @@ public class MovieEntity implements Parcelable {
         movieContent.put(MovieEntry.HAS_VIDEO, video);
         movieContent.put(MovieEntry.VOTE_AVERAGE, voteAverage);
         movieContent.put(MovieEntry.VOTE_COUNT, voteCount);
-        movieContent.put(MovieEntry.IS_FAVORITE, isFavorite);
-        movieContent.put(MovieEntry.IS_TOP_RATED, isTopRated);
         return movieContent;
     }
 
@@ -208,7 +205,6 @@ public class MovieEntity implements Parcelable {
         movie.setVideo(getColumnInt(cursor, MovieEntry.HAS_VIDEO) == 1);
         movie.setVoteAverage(getColumnDouble(cursor, MovieEntry.VOTE_AVERAGE));
         movie.setVoteCount(getColumnInt(cursor, MovieEntry.VOTE_COUNT));
-        movie.setFavorite(getColumnInt(cursor, MovieEntry.IS_FAVORITE) == 1);
         return movie;
     }
 

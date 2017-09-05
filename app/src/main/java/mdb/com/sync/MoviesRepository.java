@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -15,21 +14,20 @@ import javax.inject.Inject;
 import mdb.com.data.db.MoviesContract;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
-import mdb.com.loaders.MoviesLoader;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MoviesService {
+public class MoviesRepository {
 
-    private static final String TAG = MoviesService.class.getSimpleName();
+    private static final String TAG = MoviesRepository.class.getSimpleName();
 
     public static final String BROADCAST_UPDATE_FINISHED = "UpdateFinished";
     public static final String EXTRA_IS_SUCCESSFUL_UPDATED = "isSuccessfulUpdated";
 
     private static final int PAGE_SIZE = 20;
-    private static final String LOG_TAG = "MoviesService";
+    private static final String LOG_TAG = "MoviesRepository";
 
     private volatile boolean loading = false;
 
@@ -45,20 +43,17 @@ public class MoviesService {
     public static final String EXTRA = TAG + ".contentValues";
 
     @Inject
-    public MoviesService(Context context,
-                         SortHelper sortHelper, mdb.com.data.api.MoviesService service) {
+    public MoviesRepository(Context context, SortHelper sortHelper, mdb.com.data.api.MoviesService service) {
         this.service = service;
         this.context = context;
         this.sortHelper = sortHelper;
     }
 
-
-    public void refreshMovies() {
+    public void refreshMovies(String sort) {
         if (loading) {
             return;
         }
         loading = true;
-        String sort = sortHelper.getSortByPreference().toString();
         callDiscoverMovies(sort, null);
     }
 
@@ -66,13 +61,12 @@ public class MoviesService {
         return loading;
     }
 
-    public void loadMoreMovies() {
+    public void loadMoreMovies(String sort) {
         if (loading) {
             return;
         }
         loading = true;
-        String sort = sortHelper.getSortByPreference().toString();
-        Uri uri = sortHelper.getSortedMoviesUri();
+        Uri uri = sortHelper.getSortedMoviesUri(sort);
         if (uri == null) {
             return;
         }
@@ -80,15 +74,15 @@ public class MoviesService {
     }
 
     private void callDiscoverMovies(String sort, @Nullable Integer page) {
-        service.discoverMovies(String.valueOf(sort), page)
+        service.discoverMovies(sort, page)
                 .subscribeOn(Schedulers.newThread())
-                .doOnNext(this::clearMoviesSortTableIfNeeded)
+                .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
                 .map(DiscoverAndSearchResponse::getResults)
                 .flatMap(Observable::from)
                 .map(this::saveMovie)
                 .map(MoviesContract::getIdFromUri)
-                .doOnNext(this::saveMovieReference)
+                .doOnNext((movieId) -> saveMovieReference(movieId, sort))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Long>() {
                     @Override
@@ -111,14 +105,14 @@ public class MoviesService {
                 });
     }
 
-    private void saveMovieReference(Long movieId) {
+    private void saveMovieReference(Long movieId, String sort) {
         ContentValues entry = new ContentValues();
-        entry.put(MoviesContract.TrailerColumns.MOVIE_ID, movieId);
-        context.getContentResolver().insert(MoviesContract.CONTENT_URI_MOVIES, entry);
+        entry.put(MoviesContract.COLUMN_MOVIE_ID_KEY, movieId);
+        context.getContentResolver().insert(sortHelper.getSortedMoviesUri(sort), entry);
     }
 
     private Uri saveMovie(MovieEntity movie) {
-        return context.getContentResolver().insert(MoviesContract.CONTENT_URI_MOVIES, movie.convertToContentValues());
+        return context.getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, movie.convertToContentValues());
     }
 
     private void logResponse(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse) {
@@ -126,10 +120,10 @@ public class MoviesService {
                 discoverMoviesResponse.getResults().toString());
     }
 
-    private void clearMoviesSortTableIfNeeded(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse) {
+    private void clearMoviesSortTableIfNeeded(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse, String sort) {
         if (discoverMoviesResponse.getPage() == 1) {
             context.getContentResolver().delete(
-                    MoviesContract.CONTENT_URI_MOVIES,
+                    sortHelper.getSortedMoviesUri(sort),
                     null,
                     null
             );
