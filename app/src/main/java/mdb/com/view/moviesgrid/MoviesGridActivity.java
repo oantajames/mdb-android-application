@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import android.widget.Toolbar;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -101,7 +102,7 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
         adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.top_rated));
         adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.most_popular));
-        adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.my_favorites));
+        adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.FAVORITES)), getString(R.string.my_favorites));
         viewPager.setAdapter(adapter);
     }
 

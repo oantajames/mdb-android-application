@@ -2,7 +2,9 @@ package mdb.com.sync;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
+
 import javax.inject.Inject;
+
 import mdb.com.data.db.MoviesContract;
 
 public final class SortHelper {
@@ -32,6 +34,8 @@ public final class SortHelper {
                 return MoviesContract.MostPopularMoviesEntry.CONTENT_URI;
             case TOP_RATED:
                 return MoviesContract.TopRatedMoviesEntry.CONTENT_URI;
+            case FAVORITES:
+                return MoviesContract.MyFavoritesMoviesEntry.CONTENT_URI;
             default:
                 throw new IllegalStateException("Unknown sort.");
         }

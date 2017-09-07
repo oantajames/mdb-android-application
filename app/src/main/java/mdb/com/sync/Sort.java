@@ -6,7 +6,7 @@ public enum Sort {
 
     MOST_POPULAR("popularity.desc"),
     TOP_RATED("vote_average.desc"),
-    MOST_RATED("vote_count.desc");
+    FAVORITES("favorites.desc");
 
     private String value;
 

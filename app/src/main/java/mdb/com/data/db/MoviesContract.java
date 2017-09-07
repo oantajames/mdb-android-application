@@ -162,7 +162,7 @@ public class MoviesContract {
         public static final String TABLE_NAME = "my_favorites_movies";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
-                .appendPath(PATH_MOST_POPULAR)
+                .appendPath(PATH_FAVORITES)
                 .build();
 
         public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES

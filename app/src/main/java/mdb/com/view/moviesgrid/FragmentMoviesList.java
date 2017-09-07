@@ -11,18 +11,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import mdb.com.R;
-import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.di.component.MoviesGridComponent;
 import mdb.com.sync.MoviesRepository;
 import mdb.com.sync.Sort;
 import mdb.com.sync.SortHelper;
-import mdb.com.view.moviedetails.MovieDetailsActivity;
 
 
 import javax.inject.Inject;
@@ -39,18 +33,14 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
     public static FragmentMoviesList newInstance(String state) {
         FragmentMoviesList fragmentMoviesList = new FragmentMoviesList();
         Bundle bundle = new Bundle();
-        bundle.putString(STATE, state);
+        bundle.putString(SORT, state);
         fragmentMoviesList.setArguments(bundle);
         return fragmentMoviesList;
     }
 
     public static final String BROADCAST_SORT_PREFERENCE_CHANGED = "SortPreferenceChanged";
 
-    public static final int MOST_POPULAR = 11234;
-    public static final int TOP_RATED = 21234;
-    public static final int MY_FAVORITES = 31223;
-
-    public static final String STATE = "STATE";
+    public static final String SORT = "SORT";
     private String sort;
 
     @Inject
@@ -84,12 +74,7 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent(MoviesGridComponent.class).inject(this);
-        sort = getArguments().getString(STATE, String.valueOf(Sort.MOST_POPULAR));
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        sort = getArguments().getString(SORT, String.valueOf(Sort.MOST_POPULAR));
     }
 
     @Override
