@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_black"
+    android:clickable="true"
     android:fillViewport="true">
 
     <LinearLayout
         android:id="@+id/main_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:background="@color/blue">
+        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -25,6 +25,23 @@
                 android:layout_height="230dp"
                 android:background="@android:color/black"
                 fresco:scaleType="centerCrop"/>
+
+            <ImageView
+                android:id="@+id/back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/back_button"/>
+
+            <ImageView
+                android:id="@+id/favorites_button"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="10dp"
+                android:src="@drawable/heart_button_selector"
+                />
 
             <ImageView
                 android:id="@+id/backdrop_gradient_view"

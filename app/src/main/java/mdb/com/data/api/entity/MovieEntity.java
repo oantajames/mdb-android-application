@@ -55,8 +55,6 @@ public class MovieEntity implements Parcelable {
     @SerializedName("release_date")
     @Expose
     public String releaseDate;
-    public Boolean isFavorite;
-    public Boolean isTopRated;
 
     public MovieEntity(int id, String title) {
         this.id = id;
@@ -112,7 +110,6 @@ public class MovieEntity implements Parcelable {
         overview = in.readString();
         releaseDate = in.readString();
         byte tmpIsFavorite = in.readByte();
-        isFavorite = tmpIsFavorite == 0 ? null : tmpIsFavorite == 1;
     }
 
     @Override
@@ -150,7 +147,6 @@ public class MovieEntity implements Parcelable {
         dest.writeByte((byte) (adult == null ? 0 : adult ? 1 : 2));
         dest.writeString(overview);
         dest.writeString(releaseDate);
-        dest.writeByte((byte) (isFavorite == null ? 0 : isFavorite ? 1 : 2));
     }
 
     @Override
@@ -310,14 +306,6 @@ public class MovieEntity implements Parcelable {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    public Boolean getFavorite() {
-        return isFavorite;
-    }
-
-    public void setFavorite(Boolean favorite) {
-        isFavorite = favorite;
     }
 
     public static Creator<MovieEntity> getCREATOR() {

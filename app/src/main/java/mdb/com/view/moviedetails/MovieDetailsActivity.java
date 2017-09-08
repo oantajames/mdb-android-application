@@ -10,6 +10,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import butterknife.OnClick;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -31,6 +33,7 @@ import mdb.com.data.api.reponse.MovieReviewsResponse;
 import mdb.com.data.api.reponse.MovieVideosResponse;
 import mdb.com.di.component.DaggerMovieDetailsComponent;
 import mdb.com.di.module.MovieDetailsModule;
+import mdb.com.sync.FavoriteService;
 import mdb.com.util.SharedPreferencesUtil;
 import mdb.com.view.BaseActivity;
 import mdb.com.view.moviedetails.reviews.MovieReviewsAdapter;
@@ -62,8 +65,6 @@ public class MovieDetailsActivity extends BaseActivity {
     @Inject
     MoviesService moviesService;
 
-    private static final String TAG = MovieDetailsActivity.class.getSimpleName();
-
     @Bind(R.id.header)
     SimpleDraweeView movieHeader;
     @Bind(R.id.backdrop_gradient_view)
@@ -84,6 +85,13 @@ public class MovieDetailsActivity extends BaseActivity {
     RecyclerView trailersRecyclerView;
     @Bind(R.id.reviews_recycler_view)
     RecyclerView reviewsRecyclerView;
+    @Bind(R.id.favorites_button)
+    ImageView favoritesButton;
+    @Bind(R.id.back_button)
+    ImageView backButton;
+
+    @Inject
+    FavoriteService favoriteService;
 
     private MovieTrailersAdapter movieTrailersAdapter;
     private MovieReviewsAdapter reviewsAdapter;
@@ -97,9 +105,18 @@ public class MovieDetailsActivity extends BaseActivity {
         ButterKnife.bind(this);
         setFlowTextViewAppearance();
         movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
+        setFavoritesButtonView();
         movieTrailersAdapter = new MovieTrailersAdapter(this);
         reviewsAdapter = new MovieReviewsAdapter();
         bindViews(movieEntity);
+    }
+
+    private void setFavoritesButtonView() {
+        if (favoriteService.isFavorite(movieEntity)) {
+            favoritesButton.setSelected(true);
+        } else {
+            favoritesButton.setSelected(false);
+        }
     }
 
     @Override
@@ -111,7 +128,7 @@ public class MovieDetailsActivity extends BaseActivity {
 
     private void setFlowTextViewAppearance() {
         movieDescription.setTextColor(Color.WHITE);
-        movieDescription.setTextSize(45);
+        movieDescription.setTextSize(60);
     }
 
     private void inject() {
@@ -120,6 +137,22 @@ public class MovieDetailsActivity extends BaseActivity {
                 .movieDetailsModule(new MovieDetailsModule())
                 .build();
         movieDetailsComponent.inject(this);
+    }
+
+    @OnClick(R.id.favorites_button)
+    public void onFavoritesClick(View v) {
+        if (v.isSelected()) {
+            favoriteService.removeFromFavorites(movieEntity);
+            v.setSelected(false);
+        } else {
+            favoriteService.addToFavorites(movieEntity);
+            v.setSelected(true);
+        }
+    }
+
+    @OnClick(R.id.back_button)
+    public void onBackButtonClicked() {
+        super.onBackPressed();
     }
 
     public void bindViews(MovieEntity entity) {
@@ -222,7 +255,6 @@ public class MovieDetailsActivity extends BaseActivity {
                     }
                 });
     }
-
 
     private void loadMovieReviews(MovieEntity movieEntity) {
         moviesService.getMovieReviews(String.valueOf(movieEntity.getId()))

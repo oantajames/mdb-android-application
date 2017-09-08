@@ -3,6 +3,7 @@ package mdb.com.di.component;
 import mdb.com.di.module.MovieDetailsModule;
 import mdb.com.view.moviedetails.MovieDetailsActivity;
 import dagger.Component;
+import mdb.com.view.moviesgrid.MoviesGridAdapter;
 
 /**
  * @author james on 8/7/17.
@@ -12,5 +13,4 @@ import dagger.Component;
 public interface MovieDetailsComponent {
     // where
     void inject(MovieDetailsActivity movieDetailsActivity);
-
 }

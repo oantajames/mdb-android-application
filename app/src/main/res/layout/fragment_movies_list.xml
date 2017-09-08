@@ -16,10 +16,4 @@
         android:background="@color/lightGray"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <ProgressBar
-        android:id="@+id/grid_progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
-
 </android.support.v4.widget.SwipeRefreshLayout>

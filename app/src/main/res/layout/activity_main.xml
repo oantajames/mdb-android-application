@@ -19,33 +19,16 @@
         android:layout_height="wrap_content"
         android:elevation="10dp">
 
-        <Toolbar
-            android:id="@+id/toolbar"
+        <include
+            layout="@layout/item_search_part"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentInsetEnd="0dp"
-            android:contentInsetLeft="0dp"
-            android:contentInsetRight="0dp"
-            android:contentInsetStart="0dp"
-            app:contentInsetEnd="0dp"
-            app:contentInsetLeft="0dp"
-            app:contentInsetRight="0dp"
-            app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-            <include
-                layout="@layout/item_search_part"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"/>
-
-        </Toolbar>
+            app:layout_scrollFlags="scroll|enterAlways"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             app:tabIndicatorHeight="0dp"/>
 
     </android.support.design.widget.AppBarLayout>

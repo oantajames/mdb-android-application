@@ -9,15 +9,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
-
 import mdb.com.R;
 import mdb.com.di.component.MoviesGridComponent;
 import mdb.com.sync.MoviesRepository;
 import mdb.com.sync.Sort;
 import mdb.com.sync.SortHelper;
-
 
 import javax.inject.Inject;
 
@@ -30,6 +29,8 @@ import mdb.com.view.moviesgrid.util.EndlessRecyclerViewOnScrollListener;
 
 public class FragmentMoviesList extends AbstractMoviesGridFragment {
 
+    public static final String SORT = "SORT";
+
     public static FragmentMoviesList newInstance(String state) {
         FragmentMoviesList fragmentMoviesList = new FragmentMoviesList();
         Bundle bundle = new Bundle();
@@ -37,18 +38,6 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
         fragmentMoviesList.setArguments(bundle);
         return fragmentMoviesList;
     }
-
-    public static final String BROADCAST_SORT_PREFERENCE_CHANGED = "SortPreferenceChanged";
-
-    public static final String SORT = "SORT";
-    private String sort;
-
-    @Inject
-    SortHelper sortHelper;
-    @Inject
-    MoviesRepository moviesRepository;
-
-    private EndlessRecyclerViewOnScrollListener endlessRecyclerViewOnScrollListener;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -63,12 +52,15 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
                 swipeRefreshLayout.setRefreshing(false);
                 endlessRecyclerViewOnScrollListener.setLoading(false);
                 updateGridLayout();
-            } else if (action.equals(BROADCAST_SORT_PREFERENCE_CHANGED)) {
-                recyclerView.smoothScrollToPosition(0);
-                restartLoader();
             }
         }
     };
+
+    @Inject
+    MoviesRepository moviesRepository;
+    private String sort;
+
+    private EndlessRecyclerViewOnScrollListener endlessRecyclerViewOnScrollListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +74,6 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MoviesRepository.BROADCAST_UPDATE_FINISHED);
-        intentFilter.addAction(BROADCAST_SORT_PREFERENCE_CHANGED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, intentFilter);
         if (endlessRecyclerViewOnScrollListener != null) {
             endlessRecyclerViewOnScrollListener.setLoading(moviesRepository.isLoading());
@@ -90,17 +81,28 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
         swipeRefreshLayout.setRefreshing(moviesRepository.isLoading());
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
+    }
+
     @NonNull
     @Override
     protected Uri getContentUri() {
-        return sortHelper.getSortedMoviesUri(sort);
+        return SortHelper.getSortedMoviesUri(sort);
     }
 
     @Override
     protected void onCursorLoaded(Cursor data) {
-        getAdapter().changeCursor(data);
-        if (data == null || data.getCount() == 0) {
-            refreshMovies();
+        // the first time the favorites cursor data is empty
+        if (sort.equals(Sort.FAVORITES)) {
+            getAdapter().changeCursor(data);
+        } else {
+            getAdapter().changeCursor(data);
+            if (data == null || data.getCount() == 0) {
+                refreshMovies();
+            }
         }
     }
 

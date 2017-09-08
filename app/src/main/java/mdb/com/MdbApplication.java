@@ -21,8 +21,6 @@ import javax.inject.Named;
 
 public class MdbApplication extends Application {
 
-    //TODO : You’ll modify the existing sorting criteria for the main view to include an additional pivot to show their favorites collection.
-
     private ApplicationComponent applicationComponent;
 
     @Inject

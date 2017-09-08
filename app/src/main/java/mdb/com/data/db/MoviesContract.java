@@ -159,7 +159,7 @@ public class MoviesContract {
             return COLUMNS.clone();
         }
 
-        public static final String TABLE_NAME = "my_favorites_movies";
+        public static final String TABLE_NAME = "favorites";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
                 .appendPath(PATH_FAVORITES)
@@ -196,16 +196,6 @@ public class MoviesContract {
         public static final String MOVIE_ID = "movie_id";
     }
 
-    public static final Uri CONTENT_URI_REVIEWS = new Uri.Builder().scheme("content")
-            .authority(CONTENT_AUTHORITY)
-            .appendPath(TABLE_REVIEWS)
-            .build();
-
-    public static final Uri CONTENT_URI_TRAILERS = new Uri.Builder().scheme("content")
-            .authority(CONTENT_AUTHORITY)
-            .appendPath(TABLE_TRAILERS)
-            .build();
-
     public static String getColumnString(Cursor cursor, String columnName) {
         return cursor.getString(cursor.getColumnIndex(columnName));
     }
@@ -217,7 +207,6 @@ public class MoviesContract {
     public static double getColumnDouble(Cursor cursor, String columnName) {
         return cursor.getDouble(cursor.getColumnIndex(columnName));
     }
-
 
     public static long getIdFromUri(Uri uri) {
         return ContentUris.parseId(uri);

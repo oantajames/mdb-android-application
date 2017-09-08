@@ -12,7 +12,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "moviesDatabaseProvider";
 
-    private static final int DATABASE_SCHEMA_VERSION = 4;
+    private static final int DATABASE_SCHEMA_VERSION = 1;
     private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS ";
 
     public MoviesDbHelper(Context context) {

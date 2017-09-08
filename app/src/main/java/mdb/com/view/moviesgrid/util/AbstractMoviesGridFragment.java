@@ -34,6 +34,7 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     @Bind(R.id.movies_recycler_view)
     public RecyclerView recyclerView;
 
+
     private MoviesGridAdapter adapter;
 
     private OnItemSelectedListener onItemSelectedListener;

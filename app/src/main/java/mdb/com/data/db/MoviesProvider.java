@@ -22,7 +22,7 @@ public class MoviesProvider extends ContentProvider {
     static final int MOVIE_BY_ID = 111;
     static final int MOST_POPULAR_MOVIES = 213;
     static final int TOP_RATED_MOVIES = 214;
-    static final int FAVORITES_MOVIES = 333;
+    static final int FAVORITES_MOVIES = 323;
 
     // movies._id = ?
     private static final String MOVIE_ID_SELECTION =

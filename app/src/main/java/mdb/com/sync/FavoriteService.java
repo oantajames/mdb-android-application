@@ -9,9 +9,6 @@ import javax.inject.Inject;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.db.MoviesContract;
 
-/**
- * Created by james on 9/6/17.
- */
 
 public class FavoriteService {
 

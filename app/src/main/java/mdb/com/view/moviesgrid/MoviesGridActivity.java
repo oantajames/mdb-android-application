@@ -40,13 +40,10 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
 
     @Bind(R.id.viewpager)
     ViewPager viewPager;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
     @Bind(R.id.tabs)
     TabLayout tabLayout;
 
     private DaggerMoviesGridComponent moviesGridComponent;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +51,6 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         inject();
-        //TODO : fix the freaking toolbar layout!
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setActionBar(toolbar);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -102,7 +95,7 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
         adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.TOP_RATED)), getString(R.string.top_rated));
         adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.MOST_POPULAR)), getString(R.string.most_popular));
-        adapter.addFrag(FragmentMoviesList.newInstance(String.valueOf(Sort.FAVORITES)), getString(R.string.my_favorites));
+        adapter.addFrag(FavoritesGridFragmnet.create(), getString(R.string.my_favorites));
         viewPager.setAdapter(adapter);
     }
 

@@ -24,15 +24,8 @@ public class MoviesGridModule {
 
     @Provides
     @PerActivity
-    SortHelper providesSortHelper(SharedPreferences sharedPreferences) {
-        return new SortHelper(sharedPreferences);
-    }
-
-    @Provides
-    @PerActivity
-    public MoviesRepository providesMoviesService(Context context, mdb.com.data.api.MoviesService theMovieDbService,
-                                                  SortHelper sortHelper) {
-        return new MoviesRepository(context, sortHelper, theMovieDbService);
+    public MoviesRepository providesMoviesService(Context context, mdb.com.data.api.MoviesService theMovieDbService) {
+        return new MoviesRepository(context, theMovieDbService);
     }
 
 }

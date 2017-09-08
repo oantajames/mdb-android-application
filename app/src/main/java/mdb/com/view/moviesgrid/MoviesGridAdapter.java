@@ -13,11 +13,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import javax.inject.Inject;
 import mdb.com.R;
 import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.entity.MovieEntity;
+import mdb.com.di.component.MoviesGridComponent;
+import mdb.com.sync.FavoriteService;
 import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 import mdb.com.view.moviesgrid.util.OnItemClickListener;
 
@@ -71,21 +75,30 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
 
         @Bind(R.id.movie_poster)
         ImageView moviePoster;
-        private final Context context;
+        @Bind(R.id.grid_favorite_button)
+        ImageView favoriteButton;
 
+        @Inject
+        FavoriteService favoriteService;
+
+        private final Context context;
         private OnItemClickListener onItemClickListener;
+        private MovieEntity movieEntity;
 
         public ViewHolder(View itemView, OnItemClickListener listener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             context = itemView.getContext();
+            ((MoviesGridActivity) context).getComponent().inject(this);
             this.onItemClickListener = listener;
         }
 
-        public void setMovieItem(final MovieEntity movieItem) {
-            ViewCompat.setTransitionName(moviePoster, movieItem.getTitle());
+        public void setMovieItem(final MovieEntity movieEntity) {
+            this.movieEntity = movieEntity;
+            setupFavoritesButton();
+            ViewCompat.setTransitionName(moviePoster, movieEntity.getTitle());
             Glide.with(context)
-                    .load(Uri.parse(ApiConstants.BASE_IMAGE_URL + movieItem.getPosterPath()))
+                    .load(Uri.parse(ApiConstants.BASE_IMAGE_URL + movieEntity.getPosterPath()))
                     .placeholder(Color.GRAY)
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .centerCrop()
@@ -94,10 +107,29 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
             itemView.setOnClickListener(this);
         }
 
+        private void setupFavoritesButton() {
+            if (favoriteService.isFavorite(movieEntity)) {
+                favoriteButton.setSelected(true);
+            } else {
+                favoriteButton.setSelected(false);
+            }
+        }
+
         @Override
         public void onClick(View v) {
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(v, getAdapterPosition());
+            }
+        }
+
+        @OnClick(R.id.grid_favorite_button)
+        public void onFavoritesButton(View view) {
+            if (view.isSelected()) {
+                favoriteService.removeFromFavorites(movieEntity);
+                view.setSelected(false);
+            } else {
+                favoriteService.addToFavorites(movieEntity);
+                view.setSelected(true);
             }
         }
     }

@@ -1,11 +1,10 @@
 package mdb.com.di.component;
 
-import android.app.Application;
-
 import mdb.com.di.module.MoviesGridModule;
 import mdb.com.view.moviesgrid.FragmentMoviesList;
 import mdb.com.view.moviesgrid.MoviesGridActivity;
 import dagger.Component;
+import mdb.com.view.moviesgrid.MoviesGridAdapter;
 
 
 /**
@@ -19,5 +18,7 @@ public interface MoviesGridComponent {
     void inject(MoviesGridActivity moviesGridActivity);
 
     void inject(FragmentMoviesList fragmentMoviesList);
+
+    void inject(MoviesGridAdapter.ViewHolder viewHolder);
 
 }

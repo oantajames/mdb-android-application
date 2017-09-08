@@ -6,7 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginBottom="20dp"
+    android:layout_marginBottom="25dp"
     android:background="@drawable/filter_button_selector"
     android:gravity="center"
     android:lines="1"

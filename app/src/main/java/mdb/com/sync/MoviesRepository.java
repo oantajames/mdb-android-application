@@ -11,6 +11,7 @@ import android.util.Log;
 
 import javax.inject.Inject;
 
+import mdb.com.data.api.MoviesService;
 import mdb.com.data.db.MoviesContract;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
@@ -21,8 +22,6 @@ import rx.schedulers.Schedulers;
 
 public class MoviesRepository {
 
-    private static final String TAG = MoviesRepository.class.getSimpleName();
-
     public static final String BROADCAST_UPDATE_FINISHED = "UpdateFinished";
     public static final String EXTRA_IS_SUCCESSFUL_UPDATED = "isSuccessfulUpdated";
 
@@ -31,22 +30,13 @@ public class MoviesRepository {
 
     private volatile boolean loading = false;
 
-    private SortHelper sortHelper;
-
-    private mdb.com.data.api.MoviesService service;
+    private MoviesService service;
     private Context context;
 
-
-    public static final String ACTION_UPDATE_MOVIE = TAG + ".updateMovie";
-    public static final String SORT_TYPE = TAG + ".sortType";
-
-    public static final String EXTRA = TAG + ".contentValues";
-
     @Inject
-    public MoviesRepository(Context context, SortHelper sortHelper, mdb.com.data.api.MoviesService service) {
+    public MoviesRepository(Context context, MoviesService service) {
         this.service = service;
         this.context = context;
-        this.sortHelper = sortHelper;
     }
 
     public void refreshMovies(String sort) {
@@ -66,7 +56,7 @@ public class MoviesRepository {
             return;
         }
         loading = true;
-        Uri uri = sortHelper.getSortedMoviesUri(sort);
+        Uri uri = SortHelper.getSortedMoviesUri(sort);
         if (uri == null) {
             return;
         }
@@ -94,13 +84,11 @@ public class MoviesRepository {
                     @Override
                     public void onError(Throwable e) {
                         loading = false;
-                        sendUpdateFinishedBroadcast(false);
                         Log.e(LOG_TAG, "Error", e);
                     }
 
                     @Override
                     public void onNext(Long aLong) {
-                        // do nothing
                     }
                 });
     }
@@ -108,7 +96,7 @@ public class MoviesRepository {
     private void saveMovieReference(Long movieId, String sort) {
         ContentValues entry = new ContentValues();
         entry.put(MoviesContract.COLUMN_MOVIE_ID_KEY, movieId);
-        context.getContentResolver().insert(sortHelper.getSortedMoviesUri(sort), entry);
+        context.getContentResolver().insert(SortHelper.getSortedMoviesUri(sort), entry);
     }
 
     private Uri saveMovie(MovieEntity movie) {
@@ -123,17 +111,11 @@ public class MoviesRepository {
     private void clearMoviesSortTableIfNeeded(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse, String sort) {
         if (discoverMoviesResponse.getPage() == 1) {
             context.getContentResolver().delete(
-                    sortHelper.getSortedMoviesUri(sort),
+                    SortHelper.getSortedMoviesUri(sort),
                     null,
                     null
             );
         }
-    }
-
-    private void sendUpdateFinishedBroadcast(boolean successfulUpdated) {
-        Intent intent = new Intent(BROADCAST_UPDATE_FINISHED);
-        intent.putExtra(EXTRA_IS_SUCCESSFUL_UPDATED, successfulUpdated);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     private int getCurrentPage(Uri uri) {
@@ -152,4 +134,11 @@ public class MoviesRepository {
         }
         return currentPage;
     }
+
+    private void sendUpdateFinishedBroadcast(boolean successfulUpdated) {
+        Intent intent = new Intent(BROADCAST_UPDATE_FINISHED);
+        intent.putExtra(EXTRA_IS_SUCCESSFUL_UPDATED, successfulUpdated);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
 }
