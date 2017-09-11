@@ -5,7 +5,7 @@ import android.database.Cursor;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import static mdb.com.data.db.MoviesContract.ReviewColumns;
+import static mdb.com.data.db.MoviesContract.ReviewsEntry;
 import static mdb.com.data.db.MoviesContract.getColumnInt;
 import static mdb.com.data.db.MoviesContract.getColumnString;
 
@@ -28,20 +28,20 @@ public class ReviewEntity {
     public int movieId;
 
     public ReviewEntity(Cursor cursor) {
-        this.id = getColumnString(cursor, ReviewColumns._ID);
-        this.author = getColumnString(cursor, ReviewColumns.AUTHOR);
-        this.content = getColumnString(cursor, ReviewColumns.CONTENT);
-        this.url = getColumnString(cursor, ReviewColumns.URL);
-        this.movieId = getColumnInt(cursor, ReviewColumns.MOVIE_ID);
+        this.id = getColumnString(cursor, ReviewsEntry._ID);
+        this.author = getColumnString(cursor, ReviewsEntry.AUTHOR);
+        this.content = getColumnString(cursor, ReviewsEntry.CONTENT);
+        this.url = getColumnString(cursor, ReviewsEntry.URL);
+        this.movieId = getColumnInt(cursor, ReviewsEntry.MOVIE_ID);
     }
 
     public static ContentValues convert(ReviewEntity reviewEntity, int movieId) {
         ContentValues content = new ContentValues();
-        content.put(ReviewColumns._ID, reviewEntity.id);
-        content.put(ReviewColumns.AUTHOR, reviewEntity.author);
-        content.put(ReviewColumns.CONTENT, reviewEntity.content);
-        content.put(ReviewColumns.MOVIE_ID, movieId);
-        content.put(ReviewColumns.URL, reviewEntity.url);
+        content.put(ReviewsEntry._ID, reviewEntity.id);
+        content.put(ReviewsEntry.AUTHOR, reviewEntity.author);
+        content.put(ReviewsEntry.CONTENT, reviewEntity.content);
+        content.put(ReviewsEntry.MOVIE_ID, movieId);
+        content.put(ReviewsEntry.URL, reviewEntity.url);
         return content;
     }
 

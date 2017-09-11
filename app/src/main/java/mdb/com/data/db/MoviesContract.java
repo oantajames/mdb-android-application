@@ -22,6 +22,9 @@ public class MoviesContract {
     public static final String PATH_FAVORITES = "favorites";
     public static final String COLUMN_MOVIE_ID_KEY = "movie_id";
 
+    public static final String PATH_REVIEWS = "reviews";
+    public static final String PATH_TRAILERS = "trailers";
+
     //Tables
     public static final String TABLE_MOVIES = "movies";
     public static final String TABLE_REVIEWS = "reviews";
@@ -178,14 +181,38 @@ public class MoviesContract {
     }
 
 
-    public static final class ReviewColumns implements BaseColumns {
+    public static final class ReviewsEntry implements BaseColumns {
+
+        public static final String TABLE_NAME = "reviews";
+
+        public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
+                .appendPath(PATH_REVIEWS)
+                .build();
+
         public static final String AUTHOR = "author";
         public static final String CONTENT = "content";
         public static final String URL = "url";
         public static final String MOVIE_ID = "movie_id";
+
+        public static final String SQL_CREATE_TABLE_REVIEWS = String.format("CREATE TABLE %s"
+                        + " (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT, %s INTEGER, %s TEXT)",
+                TABLE_REVIEWS,
+                ReviewsEntry._ID,
+                ReviewsEntry.AUTHOR,
+                ReviewsEntry.CONTENT,
+                ReviewsEntry.MOVIE_ID,
+                ReviewsEntry.URL
+        );
     }
 
-    public static final class TrailerColumns implements BaseColumns {
+    public static final class TrailersEntry implements BaseColumns {
+
+        public static final String TABLE_NAME = "trailers";
+
+        public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
+                .appendPath(PATH_TRAILERS)
+                .build();
+
         public static final String ISO6391 = "iso6391";
         public static final String ISO31661 = "iso31661";
         public static final String KEY = "key";
@@ -194,6 +221,20 @@ public class MoviesContract {
         public static final String SIZE = "size";
         public static final String TYPE = "type";
         public static final String MOVIE_ID = "movie_id";
+
+        public static final String SQL_CREATE_TABLE_TRAILERS = String.format("CREATE TABLE %s"
+                        + " (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT,  %s TEXT, %s TEXT, %s INTEGER, %s TEXT, %s INTEGER, %s TEXT)",
+                TABLE_TRAILERS,
+                TrailersEntry._ID,
+                TrailersEntry.ISO6391,
+                TrailersEntry.ISO31661,
+                TrailersEntry.KEY,
+                TrailersEntry.NAME,
+                TrailersEntry.MOVIE_ID,
+                TrailersEntry.SITE,
+                TrailersEntry.SIZE,
+                TrailersEntry.TYPE
+        );
     }
 
     public static String getColumnString(Cursor cursor, String columnName) {

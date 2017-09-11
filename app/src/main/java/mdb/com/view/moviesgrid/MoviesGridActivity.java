@@ -30,7 +30,8 @@ import mdb.com.view.moviesgrid.util.OnItemSelectedListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent>, OnItemSelectedListener {
+public class MoviesGridActivity extends BaseActivity
+        implements HasComponent<MoviesGridComponent>, OnItemSelectedListener {
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, MoviesGridActivity.class);

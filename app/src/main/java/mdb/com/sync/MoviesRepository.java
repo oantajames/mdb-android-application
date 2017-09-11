@@ -9,18 +9,21 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
 import mdb.com.data.api.MoviesService;
 import mdb.com.data.db.MoviesContract;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import mdb.com.view.BaseRepository;
 
-public class MoviesRepository {
+
+public class MoviesRepository extends BaseRepository {
 
     public static final String BROADCAST_UPDATE_FINISHED = "UpdateFinished";
     public static final String EXTRA_IS_SUCCESSFUL_UPDATED = "isSuccessfulUpdated";
@@ -65,26 +68,32 @@ public class MoviesRepository {
 
     private void callDiscoverMovies(String sort, @Nullable Integer page) {
         service.discoverMovies(sort, page)
+                .compose(getLifecycleProvider().bindToLifecycle())
                 .subscribeOn(Schedulers.newThread())
                 .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
                 .map(DiscoverAndSearchResponse::getResults)
-                .flatMap(Observable::from)
+                .flatMapIterable(movieEntities -> movieEntities)
                 .map(this::saveMovie)
                 .map(MoviesContract::getIdFromUri)
                 .doOnNext((movieId) -> saveMovieReference(movieId, sort))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Long>() {
+                .subscribe(new Observer<Long>() {
                     @Override
-                    public void onCompleted() {
+                    public void onError(Throwable e) {
+                        loading = false;
+                        Log.e(LOG_TAG, "Error", e);
+                    }
+
+                    @Override
+                    public void onComplete() {
                         loading = false;
                         sendUpdateFinishedBroadcast(true);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        loading = false;
-                        Log.e(LOG_TAG, "Error", e);
+                    public void onSubscribe(@NonNull Disposable d) {
+
                     }
 
                     @Override

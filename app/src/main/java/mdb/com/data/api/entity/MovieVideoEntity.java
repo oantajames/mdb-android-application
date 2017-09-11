@@ -5,7 +5,7 @@ import android.database.Cursor;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import static mdb.com.data.db.MoviesContract.TrailerColumns;
+import static mdb.com.data.db.MoviesContract.TrailersEntry;
 import static mdb.com.data.db.MoviesContract.getColumnInt;
 import static mdb.com.data.db.MoviesContract.getColumnString;
 
@@ -39,28 +39,28 @@ public class MovieVideoEntity {
     public int movieId;
 
     public MovieVideoEntity(Cursor cursor) {
-        this.id = getColumnString(cursor, TrailerColumns._ID);
-        this.iso6391 = getColumnString(cursor, TrailerColumns.ISO6391);
-        this.iso31661 = getColumnString(cursor, TrailerColumns.ISO31661);
-        this.key = getColumnString(cursor, TrailerColumns.KEY);
-        this.name = getColumnString(cursor, TrailerColumns.NAME);
-        this.site = getColumnString(cursor, TrailerColumns.SITE);
-        this.size = getColumnInt(cursor, TrailerColumns.SIZE);
-        this.type = getColumnString(cursor, TrailerColumns.TYPE);
-        this.movieId = getColumnInt(cursor, TrailerColumns.MOVIE_ID);
+        this.id = getColumnString(cursor, TrailersEntry._ID);
+        this.iso6391 = getColumnString(cursor, TrailersEntry.ISO6391);
+        this.iso31661 = getColumnString(cursor, TrailersEntry.ISO31661);
+        this.key = getColumnString(cursor, TrailersEntry.KEY);
+        this.name = getColumnString(cursor, TrailersEntry.NAME);
+        this.site = getColumnString(cursor, TrailersEntry.SITE);
+        this.size = getColumnInt(cursor, TrailersEntry.SIZE);
+        this.type = getColumnString(cursor, TrailersEntry.TYPE);
+        this.movieId = getColumnInt(cursor, TrailersEntry.MOVIE_ID);
     }
 
     public static ContentValues convert(MovieVideoEntity movieVideoEntity, int movieId) {
         ContentValues content = new ContentValues();
-        content.put(TrailerColumns._ID, movieVideoEntity.id);
-        content.put(TrailerColumns.ISO6391, movieVideoEntity.iso6391);
-        content.put(TrailerColumns.ISO31661, movieVideoEntity.iso31661);
-        content.put(TrailerColumns.KEY, movieVideoEntity.key);
-        content.put(TrailerColumns.NAME, movieVideoEntity.name);
-        content.put(TrailerColumns.SITE, movieVideoEntity.site);
-        content.put(TrailerColumns.SIZE, movieVideoEntity.size);
-        content.put(TrailerColumns.TYPE, movieVideoEntity.type);
-        content.put(TrailerColumns.MOVIE_ID, movieId);
+        content.put(TrailersEntry._ID, movieVideoEntity.id);
+        content.put(TrailersEntry.ISO6391, movieVideoEntity.iso6391);
+        content.put(TrailersEntry.ISO31661, movieVideoEntity.iso31661);
+        content.put(TrailersEntry.KEY, movieVideoEntity.key);
+        content.put(TrailersEntry.NAME, movieVideoEntity.name);
+        content.put(TrailersEntry.SITE, movieVideoEntity.site);
+        content.put(TrailersEntry.SIZE, movieVideoEntity.size);
+        content.put(TrailersEntry.TYPE, movieVideoEntity.type);
+        content.put(TrailersEntry.MOVIE_ID, movieId);
         return content;
     }
 

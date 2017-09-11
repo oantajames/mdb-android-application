@@ -20,8 +20,7 @@ import javax.inject.Inject;
 import mdb.com.R;
 import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.entity.MovieEntity;
-import mdb.com.di.component.MoviesGridComponent;
-import mdb.com.sync.FavoriteService;
+import mdb.com.sync.FavoritesRepository;
 import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 import mdb.com.view.moviesgrid.util.OnItemClickListener;
 
@@ -79,7 +78,7 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
         ImageView favoriteButton;
 
         @Inject
-        FavoriteService favoriteService;
+        FavoritesRepository favoritesRepository;
 
         private final Context context;
         private OnItemClickListener onItemClickListener;
@@ -108,7 +107,7 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
         }
 
         private void setupFavoritesButton() {
-            if (favoriteService.isFavorite(movieEntity)) {
+            if (favoritesRepository.isFavorite(movieEntity)) {
                 favoriteButton.setSelected(true);
             } else {
                 favoriteButton.setSelected(false);
@@ -125,10 +124,10 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
         @OnClick(R.id.grid_favorite_button)
         public void onFavoritesButton(View view) {
             if (view.isSelected()) {
-                favoriteService.removeFromFavorites(movieEntity);
+                favoritesRepository.removeFromFavorites(movieEntity);
                 view.setSelected(false);
             } else {
-                favoriteService.addToFavorites(movieEntity);
+                favoritesRepository.addToFavorites(movieEntity);
                 view.setSelected(true);
             }
         }

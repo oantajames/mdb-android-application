@@ -13,4 +13,5 @@ import mdb.com.view.moviesgrid.MoviesGridAdapter;
 public interface MovieDetailsComponent {
     // where
     void inject(MovieDetailsActivity movieDetailsActivity);
+
 }

@@ -10,12 +10,12 @@ import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.db.MoviesContract;
 
 
-public class FavoriteService {
+public class FavoritesRepository {
 
     protected final Context context;
 
     @Inject
-    public FavoriteService(Context context) {
+    public FavoritesRepository(Context context) {
         this.context = context;
     }
 
