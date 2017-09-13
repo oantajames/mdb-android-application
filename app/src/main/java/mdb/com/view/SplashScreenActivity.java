@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mdb.com.R;
+import mdb.com.view.base.BaseActivity;
 import mdb.com.view.moviesgrid.MoviesGridActivity;
 
 /**

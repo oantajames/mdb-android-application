@@ -1,4 +1,4 @@
-package mdb.com.sync;
+package mdb.com.repository;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,6 +13,7 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
@@ -20,6 +21,8 @@ import mdb.com.data.api.MoviesService;
 import mdb.com.data.db.MoviesContract;
 import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
+import mdb.com.util.DisposingObserver;
+import mdb.com.util.Utils;
 import mdb.com.view.BaseRepository;
 
 
@@ -59,7 +62,7 @@ public class MoviesRepository extends BaseRepository {
             return;
         }
         loading = true;
-        Uri uri = SortHelper.getSortedMoviesUri(sort);
+        Uri uri = Utils.getSortedMoviesUri(sort);
         if (uri == null) {
             return;
         }
@@ -69,7 +72,6 @@ public class MoviesRepository extends BaseRepository {
     private void callDiscoverMovies(String sort, @Nullable Integer page) {
         service.discoverMovies(sort, page)
                 .compose(getLifecycleProvider().bindToLifecycle())
-                .subscribeOn(Schedulers.newThread())
                 .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
                 .map(DiscoverAndSearchResponse::getResults)
@@ -78,9 +80,15 @@ public class MoviesRepository extends BaseRepository {
                 .map(MoviesContract::getIdFromUri)
                 .doOnNext((movieId) -> saveMovieReference(movieId, sort))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Long>() {
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(new DisposingObserver<Long>() {
                     @Override
-                    public void onError(Throwable e) {
+                    public void onNext(@NonNull Long aLong) {
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
                         loading = false;
                         Log.e(LOG_TAG, "Error", e);
                     }
@@ -90,22 +98,13 @@ public class MoviesRepository extends BaseRepository {
                         loading = false;
                         sendUpdateFinishedBroadcast(true);
                     }
-
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(Long aLong) {
-                    }
                 });
     }
 
     private void saveMovieReference(Long movieId, String sort) {
         ContentValues entry = new ContentValues();
         entry.put(MoviesContract.COLUMN_MOVIE_ID_KEY, movieId);
-        context.getContentResolver().insert(SortHelper.getSortedMoviesUri(sort), entry);
+        context.getContentResolver().insert(Utils.getSortedMoviesUri(sort), entry);
     }
 
     private Uri saveMovie(MovieEntity movie) {
@@ -120,7 +119,7 @@ public class MoviesRepository extends BaseRepository {
     private void clearMoviesSortTableIfNeeded(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse, String sort) {
         if (discoverMoviesResponse.getPage() == 1) {
             context.getContentResolver().delete(
-                    SortHelper.getSortedMoviesUri(sort),
+                    Utils.getSortedMoviesUri(sort),
                     null,
                     null
             );

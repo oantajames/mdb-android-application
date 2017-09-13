@@ -11,8 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-import android.widget.Toolbar;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -22,8 +20,8 @@ import mdb.com.di.HasComponent;
 import mdb.com.di.component.DaggerMoviesGridComponent;
 import mdb.com.di.component.MoviesGridComponent;
 import mdb.com.di.module.MoviesGridModule;
-import mdb.com.sync.Sort;
-import mdb.com.view.BaseActivity;
+import mdb.com.util.Sort;
+import mdb.com.view.base.BaseActivity;
 import mdb.com.view.moviedetails.MovieDetailsActivity;
 import mdb.com.view.moviesgrid.util.OnItemSelectedListener;
 

@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import mdb.com.R;
 import mdb.com.data.api.ApiConstants;
 import mdb.com.data.api.entity.MovieEntity;
-import mdb.com.sync.FavoritesRepository;
+import mdb.com.repository.FavoritesRepository;
 import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 import mdb.com.view.moviesgrid.util.OnItemClickListener;
 

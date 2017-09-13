@@ -1,4 +1,4 @@
-package mdb.com.view;
+package mdb.com.view.base;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +10,7 @@ import com.trello.rxlifecycle2.navi.NaviLifecycle;
 import javax.inject.Inject;
 import mdb.com.MdbApplication;
 import mdb.com.di.component.ApplicationComponent;
+import mdb.com.view.BaseRepository;
 
 public abstract class BaseActivity extends NaviActivity {
 

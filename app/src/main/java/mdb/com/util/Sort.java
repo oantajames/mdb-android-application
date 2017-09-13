@@ -1,12 +1,12 @@
-package mdb.com.sync;
+package mdb.com.util;
 
 import android.support.annotation.NonNull;
 
 public enum Sort {
 
-    MOST_POPULAR("popularity.desc"),
-    TOP_RATED("vote_average.desc"),
-    FAVORITES("favorites.desc");
+    MOST_POPULAR("popularity"),
+    TOP_RATED("vote_average"),
+    FAVORITES("favorites");
 
     private String value;
 

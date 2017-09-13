@@ -19,7 +19,6 @@ import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
 import mdb.com.data.api.reponse.MovieReviewsResponse;
 import mdb.com.data.api.reponse.MovieVideosResponse;
 import mdb.com.data.db.MoviesContract;
-import mdb.com.sync.SortHelper;
 import mdb.com.view.BaseRepository;
 
 /**

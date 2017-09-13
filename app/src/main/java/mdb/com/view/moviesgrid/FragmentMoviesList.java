@@ -14,12 +14,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import mdb.com.R;
 import mdb.com.di.component.MoviesGridComponent;
-import mdb.com.sync.MoviesRepository;
-import mdb.com.sync.Sort;
-import mdb.com.sync.SortHelper;
+import mdb.com.repository.MoviesRepository;
+import mdb.com.util.Sort;
 
 import javax.inject.Inject;
 
+import mdb.com.util.Utils;
 import mdb.com.view.moviesgrid.util.AbstractMoviesGridFragment;
 import mdb.com.view.moviesgrid.util.EndlessRecyclerViewOnScrollListener;
 
@@ -90,7 +90,7 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
     @NonNull
     @Override
     protected Uri getContentUri() {
-        return SortHelper.getSortedMoviesUri(sort);
+        return Utils.getSortedMoviesUri(sort);
     }
 
     @Override

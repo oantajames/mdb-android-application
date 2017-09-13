@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mdb.com.R;
-import mdb.com.util.BaseFragment;
+import mdb.com.view.base.BaseFragment;
 import mdb.com.view.moviesgrid.MoviesGridAdapter;
 
 

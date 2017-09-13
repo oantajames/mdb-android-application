@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField("String", "API_KEY", '""')
+            buildConfigField("String", "API_KEY", '"b8ef72797fff0a5fb387da2387f063a5"')
         }
     }
     compileOptions {
