@@ -7,7 +7,9 @@ import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import javax.inject.Inject;
 import mdb.com.R;
+import mdb.com.repository.MoviesRepository;
 import mdb.com.view.base.BaseActivity;
 import mdb.com.view.moviesgrid.MoviesGridActivity;
 
@@ -18,6 +20,7 @@ import mdb.com.view.moviesgrid.MoviesGridActivity;
 public class SplashScreenActivity extends BaseActivity {
 
     private static final int delay = 3000;
+    //todo - make a movies call on this screen and store the data in the adapter
 
     @Bind(R.id.splash_screen_layout)
     ViewGroup layoutSplashScreen;

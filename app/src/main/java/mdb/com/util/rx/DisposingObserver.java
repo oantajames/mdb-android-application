@@ -1,4 +1,4 @@
-package mdb.com.util;
+package mdb.com.util.rx;
 
 import android.support.annotation.CallSuper;
 import io.reactivex.Observer;

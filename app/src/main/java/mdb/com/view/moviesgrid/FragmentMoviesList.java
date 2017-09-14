@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import mdb.com.R;
 import mdb.com.di.component.MoviesGridComponent;
 import mdb.com.repository.MoviesRepository;
@@ -30,6 +31,12 @@ import mdb.com.view.moviesgrid.util.EndlessRecyclerViewOnScrollListener;
 public class FragmentMoviesList extends AbstractMoviesGridFragment {
 
     public static final String SORT = "SORT";
+
+    @Inject
+    MoviesRepository moviesRepository;
+    private String sort;
+
+    private EndlessRecyclerViewOnScrollListener endlessRecyclerViewOnScrollListener;
 
     public static FragmentMoviesList newInstance(String state) {
         FragmentMoviesList fragmentMoviesList = new FragmentMoviesList();
@@ -56,12 +63,6 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
         }
     };
 
-    @Inject
-    MoviesRepository moviesRepository;
-    private String sort;
-
-    private EndlessRecyclerViewOnScrollListener endlessRecyclerViewOnScrollListener;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +77,8 @@ public class FragmentMoviesList extends AbstractMoviesGridFragment {
         intentFilter.addAction(MoviesRepository.BROADCAST_UPDATE_FINISHED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, intentFilter);
         if (endlessRecyclerViewOnScrollListener != null) {
+            Log.d(SORT, moviesRepository.toString());
+            Log.d(SORT, sort);
             endlessRecyclerViewOnScrollListener.setLoading(moviesRepository.isLoading());
         }
         swipeRefreshLayout.setRefreshing(moviesRepository.isLoading());

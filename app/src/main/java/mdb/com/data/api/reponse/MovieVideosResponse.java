@@ -1,7 +1,7 @@
 package mdb.com.data.api.reponse;
 
 import com.google.gson.annotations.SerializedName;
-import mdb.com.data.api.entity.MovieVideoEntity;
+import mdb.com.data.api.entity.MovieTrailerEntity;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +10,9 @@ public class MovieVideosResponse {
     private long movieId;
 
     @SerializedName("results")
-    private List<MovieVideoEntity> trailers;
+    private List<MovieTrailerEntity> trailers;
 
-    public MovieVideosResponse(long movieId, ArrayList<MovieVideoEntity> trailers) {
+    public MovieVideosResponse(long movieId, ArrayList<MovieTrailerEntity> trailers) {
         this.movieId = movieId;
         this.trailers = trailers;
     }
@@ -21,7 +21,7 @@ public class MovieVideosResponse {
         return movieId;
     }
 
-    public List<MovieVideoEntity> getTrailers() {
+    public List<MovieTrailerEntity> getTrailers() {
         return trailers;
     }
 }

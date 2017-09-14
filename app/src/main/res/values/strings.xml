@@ -12,5 +12,7 @@
     <string name="my_favorites">My Favorites</string>
 
     <string name="error_failed_to_update_movies">Failed to update movies</string>
+    <string name="error_failed_to_get_movie_details">Failed to retrieve movie details</string>
+
 
 </resources>

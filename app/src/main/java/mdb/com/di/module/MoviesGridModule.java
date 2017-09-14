@@ -22,7 +22,6 @@ public class MoviesGridModule {
     }
 
     @Provides
-    @PerActivity
     public MoviesRepository providesMoviesService(Context context, mdb.com.data.api.MoviesService theMovieDbService) {
         return new MoviesRepository(context, theMovieDbService);
     }

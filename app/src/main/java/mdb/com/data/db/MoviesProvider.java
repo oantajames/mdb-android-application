@@ -54,6 +54,9 @@ public class MoviesProvider extends ContentProvider {
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_REVIEWS, REVIEWS);
 
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TRAILERS, TRAILERS);
+
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TRAILERS + "/#", TRAILERS_WITH_MOVIE_ID);
+        //TODO -ADD ALSO FOR REVIEWS WITH ID
     }
 
 

@@ -1,11 +1,21 @@
 package mdb.com.view.moviedetails;
 
+import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.Loader;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import butterknife.Bind;
@@ -25,10 +36,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.drawee.view.SimpleDraweeView;
 import mdb.com.R;
 import mdb.com.data.api.entity.MovieEntity;
-import mdb.com.data.api.entity.MovieVideoEntity;
+import mdb.com.data.api.entity.MovieTrailerEntity;
+import mdb.com.data.db.MoviesContract;
 import mdb.com.di.component.DaggerMovieDetailsComponent;
 import mdb.com.di.module.MovieDetailsModule;
 import mdb.com.repository.FavoritesRepository;
+import mdb.com.repository.MovieDetailsRepository;
+import mdb.com.repository.MoviesRepository;
+import mdb.com.util.rx.DisposableManager;
 import mdb.com.util.SharedPreferencesUtil;
 import mdb.com.view.base.BaseActivity;
 import mdb.com.view.moviedetails.reviews.MovieReviewsAdapter;
@@ -46,9 +61,11 @@ import static mdb.com.data.api.ApiConstants.BASE_IMAGE_URL;
  * @author james on 8/1/17.
  */
 
-public class MovieDetailsActivity extends BaseActivity {
+public class MovieDetailsActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
+    private static final int LOADER_ID = 1;
+
 
     @Bind(R.id.header)
     SimpleDraweeView movieHeader;
@@ -74,6 +91,8 @@ public class MovieDetailsActivity extends BaseActivity {
     ImageView favoritesButton;
     @Bind(R.id.back_button)
     ImageView backButton;
+    @Bind(R.id.scroll_view)
+    ScrollView scrollView;
 
     @Inject
     FavoritesRepository favoritesRepository;
@@ -84,6 +103,23 @@ public class MovieDetailsActivity extends BaseActivity {
     private MovieReviewsAdapter reviewsAdapter;
     private MovieEntity movieEntity;
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(MoviesRepository.BROADCAST_UPDATE_FINISHED)) {
+                if (!intent.getBooleanExtra(MovieDetailsRepository.SUCCESSFUL_UPDATED, true)) {
+                    Snackbar.make(scrollView, R.string.error_failed_to_update_movies,
+                            Snackbar.LENGTH_LONG)
+                            .show();
+                } else {
+                    getContentResolver().notifyChange(MoviesContract.TrailersEntry.CONTENT_URI, null);
+                }
+            }
+        }
+    };
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,11 +128,36 @@ public class MovieDetailsActivity extends BaseActivity {
         ButterKnife.bind(this);
         setFlowTextViewAppearance();
         movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
         setFavoritesButtonView();
-        movieTrailersAdapter = new MovieTrailersAdapter(this);
+        movieTrailersAdapter = new MovieTrailersAdapter(null);
         reviewsAdapter = new MovieReviewsAdapter();
         bindViews(movieEntity);
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
+        movieDetailsRepository.loadVideos(movieEntity);
+        movieDetailsRepository.loadMovieReviews(movieEntity);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        DisposableManager.dispose();
+        super.onDestroy();
+    }
+
 
     private void setFavoritesButtonView() {
         if (favoritesRepository.isFavorite(movieEntity)) {
@@ -104,13 +165,6 @@ public class MovieDetailsActivity extends BaseActivity {
         } else {
             favoritesButton.setSelected(false);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        movieDetailsRepository.loadMovieVideos(movieEntity);
-        movieDetailsRepository.loadMovieReviews(movieEntity);
     }
 
     private void setFlowTextViewAppearance() {
@@ -211,7 +265,7 @@ public class MovieDetailsActivity extends BaseActivity {
     }
 
     private void onMovieVideoClicked(int position) {
-        MovieVideoEntity video = movieTrailersAdapter.getItem(position);
+        MovieTrailerEntity video = movieTrailersAdapter.getItem(position);
         if (video != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://www.youtube.com/watch?v=" + video.getKey()));
@@ -219,6 +273,22 @@ public class MovieDetailsActivity extends BaseActivity {
         }
     }
 
+    //TODO - ADD ANOTHER LOADER CALLBACK FOR THE REVIEWS
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
+        return new CursorLoader(this, ContentUris.withAppendedId(MoviesContract.TrailersEntry.CONTENT_URI, movieEntity.getId())
+                , null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        movieTrailersAdapter.changeCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        movieTrailersAdapter.changeCursor(null);
+    }
 }
 

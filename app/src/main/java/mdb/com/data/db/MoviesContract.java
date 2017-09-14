@@ -13,32 +13,32 @@ import android.provider.BaseColumns;
 
 public class MoviesContract {
 
-    public static final String CONTENT_AUTHORITY = "mdb.com.data";
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    static final String CONTENT_AUTHORITY = "mdb.com.data";
+    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-    public static final String PATH_MOVIES = "movies";
+    static final String PATH_MOVIES = "movies";
     public static final String PATH_TOP_RATED = "top_rated";
-    public static final String PATH_MOST_POPULAR = "most_popular";
-    public static final String PATH_FAVORITES = "favorites";
+    static final String PATH_MOST_POPULAR = "most_popular";
+    static final String PATH_FAVORITES = "favorites";
     public static final String COLUMN_MOVIE_ID_KEY = "movie_id";
 
-    public static final String PATH_REVIEWS = "reviews";
-    public static final String PATH_TRAILERS = "trailers";
+    static final String PATH_REVIEWS = "reviews";
+    static final String PATH_TRAILERS = "trailers";
 
     //Tables
-    public static final String TABLE_MOVIES = "movies";
-    public static final String TABLE_REVIEWS = "reviews";
-    public static final String TABLE_TRAILERS = "trailers";
+    static final String TABLE_MOVIES = "movies";
+    static final String TABLE_REVIEWS = "reviews";
+    static final String TABLE_TRAILERS = "trailers";
 
     public static final class MovieEntry implements BaseColumns {
-        public static final String TABLE_NAME = "movies";
+        static final String TABLE_NAME = "movies";
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES).build();
 
-        public static final String CONTENT_DIR_TYPE =
+        static final String CONTENT_DIR_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
-        public static final String CONTENT_ITEM_TYPE =
+        static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
         public static final String VOTE_COUNT = "vote_count";
@@ -54,39 +54,27 @@ public class MoviesContract {
         public static final String OVERVIEW = "overview";
         public static final String RELEASE_DATE = "release_date";
 
-        public static final String[] COLUMNS = {_ID, BACKDROP_PATH, HAS_VIDEO, IS_ADULT,
+        static final String[] COLUMNS = {_ID, BACKDROP_PATH, HAS_VIDEO, IS_ADULT,
                 ORIGINAL_LANGUAGE, ORIGINAL_TITLE, OVERVIEW, POPULARITY, POSTER_PATH,
                 RELEASE_DATE, TITLE, VOTE_AVERAGE, VOTE_COUNT};
 
-        public static Uri buildMovieUri(long id) {
+        static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static long getIdFromUri(Uri uri) {
+        static long getIdFromUri(Uri uri) {
             return ContentUris.parseId(uri);
         }
 
-        public static String[] getColumns() {
+        static String[] getColumns() {
             return COLUMNS.clone();
         }
 
-        public static final String SQL_CREATE_TABLE_MOVIES = String.format("CREATE TABLE %s"
+        static final String SQL_CREATE_TABLE_MOVIES = String.format("CREATE TABLE %s"
                         + " (%s INTEGER PRIMARY KEY, %s TEXT, %s BOOLEAN, %s BOOLEAN, %s TEXT, %s TEXT,"
                         + "%s TEXT, %s DOUBLE, %s TEXT, %s TEXT, %s TEXT, %s DOUBLE, %s INTEGER )",
-                MoviesContract.TABLE_MOVIES,
-                MoviesContract.MovieEntry._ID,
-                MoviesContract.MovieEntry.BACKDROP_PATH,
-                MoviesContract.MovieEntry.HAS_VIDEO,
-                MoviesContract.MovieEntry.IS_ADULT,
-                MoviesContract.MovieEntry.ORIGINAL_LANGUAGE,
-                MoviesContract.MovieEntry.ORIGINAL_TITLE,
-                MoviesContract.MovieEntry.OVERVIEW,
-                MoviesContract.MovieEntry.POPULARITY,
-                MoviesContract.MovieEntry.POSTER_PATH,
-                MoviesContract.MovieEntry.RELEASE_DATE,
-                MoviesContract.MovieEntry.TITLE,
-                MoviesContract.MovieEntry.VOTE_AVERAGE,
-                MoviesContract.MovieEntry.VOTE_COUNT);
+                TABLE_MOVIES, _ID, BACKDROP_PATH, HAS_VIDEO, IS_ADULT, ORIGINAL_LANGUAGE, ORIGINAL_TITLE,
+                OVERVIEW, POPULARITY, POSTER_PATH, RELEASE_DATE, TITLE, VOTE_AVERAGE, VOTE_COUNT);
     }
 
     // TOP RATED MOVIES TABLE
@@ -101,16 +89,16 @@ public class MoviesContract {
             return COLUMNS.clone();
         }
 
-        public static final String TABLE_NAME = "top_rated_movies";
+        static final String TABLE_NAME = "top_rated_movies";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
                 .appendPath(PATH_TOP_RATED)
                 .build();
 
-        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
+        static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
                 + "/" + PATH_TOP_RATED;
 
-        public static final String SQL_CREATE_TABLE =
+        static final String SQL_CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_MOVIE_ID_KEY + " INTEGER NOT NULL, " +
@@ -131,16 +119,16 @@ public class MoviesContract {
             return COLUMNS.clone();
         }
 
-        public static final String TABLE_NAME = "most_popular_movies";
+        static final String TABLE_NAME = "most_popular_movies";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
                 .appendPath(PATH_MOST_POPULAR)
                 .build();
 
-        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
+        static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
                 + "/" + PATH_MOST_POPULAR;
 
-        public static final String SQL_CREATE_TABLE =
+        static final String SQL_CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_MOVIE_ID_KEY + " INTEGER NOT NULL, " +
@@ -162,16 +150,16 @@ public class MoviesContract {
             return COLUMNS.clone();
         }
 
-        public static final String TABLE_NAME = "favorites";
+        static final String TABLE_NAME = "favorites";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
                 .appendPath(PATH_FAVORITES)
                 .build();
 
-        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
+        static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES
                 + "/" + PATH_FAVORITES;
 
-        public static final String SQL_CREATE_TABLE =
+        static final String SQL_CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_MOVIE_ID_KEY + " INTEGER NOT NULL, " +
@@ -183,7 +171,7 @@ public class MoviesContract {
 
     public static final class ReviewsEntry implements BaseColumns {
 
-        public static final String TABLE_NAME = "reviews";
+        static final String TABLE_NAME = "reviews";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
                 .appendPath(PATH_REVIEWS)
@@ -194,20 +182,15 @@ public class MoviesContract {
         public static final String URL = "url";
         public static final String MOVIE_ID = "movie_id";
 
-        public static final String SQL_CREATE_TABLE_REVIEWS = String.format("CREATE TABLE %s"
+        static final String SQL_CREATE_TABLE_REVIEWS = String.format("CREATE TABLE %s"
                         + " (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT, %s INTEGER, %s TEXT)",
-                TABLE_REVIEWS,
-                ReviewsEntry._ID,
-                ReviewsEntry.AUTHOR,
-                ReviewsEntry.CONTENT,
-                ReviewsEntry.MOVIE_ID,
-                ReviewsEntry.URL
+                TABLE_REVIEWS, _ID, AUTHOR, CONTENT, MOVIE_ID, URL
         );
     }
 
     public static final class TrailersEntry implements BaseColumns {
 
-        public static final String TABLE_NAME = "trailers";
+        static final String TABLE_NAME = "trailers";
 
         public static final Uri CONTENT_URI = MovieEntry.CONTENT_URI.buildUpon()
                 .appendPath(PATH_TRAILERS)
@@ -222,18 +205,9 @@ public class MoviesContract {
         public static final String TYPE = "type";
         public static final String MOVIE_ID = "movie_id";
 
-        public static final String SQL_CREATE_TABLE_TRAILERS = String.format("CREATE TABLE %s"
+        static final String SQL_CREATE_TABLE_TRAILERS = String.format("CREATE TABLE %s"
                         + " (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT,  %s TEXT, %s TEXT, %s INTEGER, %s TEXT, %s INTEGER, %s TEXT)",
-                TABLE_TRAILERS,
-                TrailersEntry._ID,
-                TrailersEntry.ISO6391,
-                TrailersEntry.ISO31661,
-                TrailersEntry.KEY,
-                TrailersEntry.NAME,
-                TrailersEntry.MOVIE_ID,
-                TrailersEntry.SITE,
-                TrailersEntry.SIZE,
-                TrailersEntry.TYPE
+                TABLE_TRAILERS, _ID, ISO6391, ISO31661, KEY, NAME, MOVIE_ID, SITE, SIZE, TYPE
         );
     }
 

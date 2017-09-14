@@ -9,24 +9,20 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
 import mdb.com.data.api.MoviesService;
 import mdb.com.data.db.MoviesContract;
 import mdb.com.data.api.entity.MovieEntity;
-import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
-import mdb.com.util.DisposingObserver;
+import mdb.com.data.api.reponse.QueryMoviesResponse;
+import mdb.com.util.rx.DisposingObserver;
 import mdb.com.util.Utils;
-import mdb.com.view.BaseRepository;
 
-
-public class MoviesRepository extends BaseRepository {
+public class MoviesRepository {
 
     public static final String BROADCAST_UPDATE_FINISHED = "UpdateFinished";
     public static final String EXTRA_IS_SUCCESSFUL_UPDATED = "isSuccessfulUpdated";
@@ -70,31 +66,27 @@ public class MoviesRepository extends BaseRepository {
     }
 
     private void callDiscoverMovies(String sort, @Nullable Integer page) {
-        service.discoverMovies(sort, page)
-                .compose(getLifecycleProvider().bindToLifecycle())
+        service.queryMovies(sort, page)
                 .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
-                .map(DiscoverAndSearchResponse::getResults)
+                .map(QueryMoviesResponse::getResults)
                 .flatMapIterable(movieEntities -> movieEntities)
-                .map(this::saveMovie)
+                .map(MoviesRepository.this::saveMovie)
                 .map(MoviesContract::getIdFromUri)
                 .doOnNext((movieId) -> saveMovieReference(movieId, sort))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new DisposingObserver<Long>() {
                     @Override
-                    public void onNext(@NonNull Long aLong) {
-
-                    }
-
-                    @Override
                     public void onError(@NonNull Throwable e) {
+                        super.onError(e);
                         loading = false;
                         Log.e(LOG_TAG, "Error", e);
                     }
 
                     @Override
                     public void onComplete() {
+                        super.onComplete();
                         loading = false;
                         sendUpdateFinishedBroadcast(true);
                     }
@@ -111,12 +103,12 @@ public class MoviesRepository extends BaseRepository {
         return context.getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, movie.convertToContentValues());
     }
 
-    private void logResponse(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse) {
+    private void logResponse(QueryMoviesResponse<MovieEntity> discoverMoviesResponse) {
         Log.d(LOG_TAG, "page == " + discoverMoviesResponse.getPage() + " " +
                 discoverMoviesResponse.getResults().toString());
     }
 
-    private void clearMoviesSortTableIfNeeded(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse, String sort) {
+    private void clearMoviesSortTableIfNeeded(QueryMoviesResponse<MovieEntity> discoverMoviesResponse, String sort) {
         if (discoverMoviesResponse.getPage() == 1) {
             context.getContentResolver().delete(
                     Utils.getSortedMoviesUri(sort),

@@ -10,7 +10,7 @@ import static mdb.com.data.db.MoviesContract.getColumnInt;
 import static mdb.com.data.db.MoviesContract.getColumnString;
 
 @SuppressWarnings("ALL")
-public class MovieVideoEntity {
+public class MovieTrailerEntity {
 
     @SerializedName("id")
     @Expose
@@ -38,7 +38,7 @@ public class MovieVideoEntity {
     public String type;
     public int movieId;
 
-    public MovieVideoEntity(Cursor cursor) {
+    public MovieTrailerEntity(Cursor cursor) {
         this.id = getColumnString(cursor, TrailersEntry._ID);
         this.iso6391 = getColumnString(cursor, TrailersEntry.ISO6391);
         this.iso31661 = getColumnString(cursor, TrailersEntry.ISO31661);
@@ -50,16 +50,21 @@ public class MovieVideoEntity {
         this.movieId = getColumnInt(cursor, TrailersEntry.MOVIE_ID);
     }
 
-    public static ContentValues convert(MovieVideoEntity movieVideoEntity, int movieId) {
+    public MovieTrailerEntity(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static ContentValues convert(MovieTrailerEntity movieTrailerEntity, int movieId) {
         ContentValues content = new ContentValues();
-        content.put(TrailersEntry._ID, movieVideoEntity.id);
-        content.put(TrailersEntry.ISO6391, movieVideoEntity.iso6391);
-        content.put(TrailersEntry.ISO31661, movieVideoEntity.iso31661);
-        content.put(TrailersEntry.KEY, movieVideoEntity.key);
-        content.put(TrailersEntry.NAME, movieVideoEntity.name);
-        content.put(TrailersEntry.SITE, movieVideoEntity.site);
-        content.put(TrailersEntry.SIZE, movieVideoEntity.size);
-        content.put(TrailersEntry.TYPE, movieVideoEntity.type);
+        content.put(TrailersEntry._ID, movieTrailerEntity.id);
+        content.put(TrailersEntry.ISO6391, movieTrailerEntity.iso6391);
+        content.put(TrailersEntry.ISO31661, movieTrailerEntity.iso31661);
+        content.put(TrailersEntry.KEY, movieTrailerEntity.key);
+        content.put(TrailersEntry.NAME, movieTrailerEntity.name);
+        content.put(TrailersEntry.SITE, movieTrailerEntity.site);
+        content.put(TrailersEntry.SIZE, movieTrailerEntity.size);
+        content.put(TrailersEntry.TYPE, movieTrailerEntity.type);
         content.put(TrailersEntry.MOVIE_ID, movieId);
         return content;
     }
@@ -135,5 +140,21 @@ public class MovieVideoEntity {
 
     public void setMovieId(int movieId) {
         this.movieId = movieId;
+    }
+
+    public static MovieTrailerEntity fromCursor(Cursor cursor) {
+        String id = String.valueOf(Math.toIntExact(cursor.getLong(cursor.getColumnIndex(TrailersEntry._ID))));
+        String name = cursor.getString(cursor.getColumnIndex(TrailersEntry.NAME));
+        MovieTrailerEntity movieTrailerEntity = new MovieTrailerEntity(id, name);
+        movieTrailerEntity.setIso6391(getColumnString(cursor, TrailersEntry.ISO6391));
+        movieTrailerEntity.setIso31661(getColumnString(cursor, TrailersEntry.ISO31661));
+        movieTrailerEntity.setKey(getColumnString(cursor, TrailersEntry.KEY));
+        movieTrailerEntity.setType(getColumnString(cursor, TrailersEntry.TYPE));
+        movieTrailerEntity.setSite(getColumnString(cursor, TrailersEntry.SITE));
+        movieTrailerEntity.setSize(getColumnInt(cursor, TrailersEntry.SIZE));
+        movieTrailerEntity.setId(getColumnString(cursor, TrailersEntry._ID));
+        movieTrailerEntity.setName(getColumnString(cursor, TrailersEntry.NAME));
+        movieTrailerEntity.setMovieId(getColumnInt(cursor, TrailersEntry.MOVIE_ID));
+        return movieTrailerEntity;
     }
 }

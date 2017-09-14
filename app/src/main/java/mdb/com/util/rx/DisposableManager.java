@@ -1,4 +1,4 @@
-package mdb.com.util;
+package mdb.com.util.rx;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
