@@ -1,4 +1,4 @@
-package mdb.com.sync;
+package mdb.com.repository;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,16 +9,20 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 
 import mdb.com.data.api.MoviesService;
 import mdb.com.data.db.MoviesContract;
 import mdb.com.data.api.entity.MovieEntity;
-import mdb.com.data.api.reponse.DiscoverAndSearchResponse;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import mdb.com.data.api.reponse.QueryMoviesResponse;
+import mdb.com.util.rx.DisposingObserver;
+import mdb.com.util.Utils;
 
 public class MoviesRepository {
 
@@ -56,7 +60,7 @@ public class MoviesRepository {
             return;
         }
         loading = true;
-        Uri uri = SortHelper.getSortedMoviesUri(sort);
+        Uri uri = Utils.getSortedMoviesUri(sort);
         if (uri == null) {
             return;
         }
@@ -64,54 +68,62 @@ public class MoviesRepository {
     }
 
     private void callDiscoverMovies(String sort, @Nullable Integer page) {
-        service.discoverMovies(sort, page)
-                .subscribeOn(Schedulers.newThread())
+        service.queryMovies(sort, page)
                 .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
-                .map(DiscoverAndSearchResponse::getResults)
-                .flatMap(Observable::from)
-                .map(this::saveMovie)
+                .map(movieEntityQueryMoviesResponse -> getMoviesWithNoAdult(movieEntityQueryMoviesResponse.getResults()))
+                .flatMapIterable(movieEntities -> movieEntities)
+                .map(MoviesRepository.this::saveMovie)
                 .map(MoviesContract::getIdFromUri)
                 .doOnNext((movieId) -> saveMovieReference(movieId, sort))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Long>() {
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(new DisposingObserver<Long>() {
                     @Override
-                    public void onCompleted() {
-                        loading = false;
-                        sendUpdateFinishedBroadcast(true);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
+                    public void onError(@NonNull Throwable e) {
+                        super.onError(e);
                         loading = false;
                         Log.e(LOG_TAG, "Error", e);
                     }
 
                     @Override
-                    public void onNext(Long aLong) {
+                    public void onComplete() {
+                        super.onComplete();
+                        loading = false;
+                        sendUpdateFinishedBroadcast(true);
                     }
                 });
+    }
+
+    private List<MovieEntity> getMoviesWithNoAdult(List<MovieEntity> entityQueryMoviesResponse) {
+        List<MovieEntity> moviesWithNoAdult = new ArrayList<>();
+        for (MovieEntity entity : entityQueryMoviesResponse) {
+            if (!entity.adult) {
+                moviesWithNoAdult.add(entity);
+            }
+        }
+        return moviesWithNoAdult;
     }
 
     private void saveMovieReference(Long movieId, String sort) {
         ContentValues entry = new ContentValues();
         entry.put(MoviesContract.COLUMN_MOVIE_ID_KEY, movieId);
-        context.getContentResolver().insert(SortHelper.getSortedMoviesUri(sort), entry);
+        context.getContentResolver().insert(Utils.getSortedMoviesUri(sort), entry);
     }
 
     private Uri saveMovie(MovieEntity movie) {
         return context.getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, movie.convertToContentValues());
     }
 
-    private void logResponse(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse) {
+    private void logResponse(QueryMoviesResponse<MovieEntity> discoverMoviesResponse) {
         Log.d(LOG_TAG, "page == " + discoverMoviesResponse.getPage() + " " +
                 discoverMoviesResponse.getResults().toString());
     }
 
-    private void clearMoviesSortTableIfNeeded(DiscoverAndSearchResponse<MovieEntity> discoverMoviesResponse, String sort) {
+    private void clearMoviesSortTableIfNeeded(QueryMoviesResponse<MovieEntity> discoverMoviesResponse, String sort) {
         if (discoverMoviesResponse.getPage() == 1) {
             context.getContentResolver().delete(
-                    SortHelper.getSortedMoviesUri(sort),
+                    Utils.getSortedMoviesUri(sort),
                     null,
                     null
             );

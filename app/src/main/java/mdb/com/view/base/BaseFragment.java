@@ -1,4 +1,4 @@
-package mdb.com.util;
+package mdb.com.view.base;
 
 import android.app.Fragment;
 import mdb.com.di.HasComponent;

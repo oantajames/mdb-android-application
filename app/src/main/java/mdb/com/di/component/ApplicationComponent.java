@@ -6,7 +6,7 @@ import mdb.com.MdbApplication;
 import mdb.com.data.api.MoviesService;
 import mdb.com.di.module.ApplicationModule;
 import mdb.com.di.module.NetworkModule;
-import mdb.com.view.BaseActivity;
+import mdb.com.view.base.BaseActivity;
 
 import com.squareup.okhttp.OkHttpClient;
 

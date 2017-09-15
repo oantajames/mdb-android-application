@@ -1,11 +1,13 @@
-package mdb.com.sync;
+package mdb.com.util;
 
 import android.net.Uri;
-
-import javax.inject.Inject;
 import mdb.com.data.db.MoviesContract;
 
-public class SortHelper {
+/**
+ * @author james on 9/13/17.
+ */
+
+public class Utils {
 
     public static Uri getSortedMoviesUri(String sortString) {
         Sort sort = Sort.fromString(sortString);

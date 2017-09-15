@@ -7,8 +7,7 @@ import android.preference.PreferenceManager;
 import dagger.Module;
 import dagger.Provides;
 import mdb.com.di.component.PerActivity;
-import mdb.com.sync.MoviesRepository;
-import mdb.com.sync.SortHelper;
+import mdb.com.repository.MoviesRepository;
 
 /**
  * @author james on 7/24/17.
@@ -23,7 +22,6 @@ public class MoviesGridModule {
     }
 
     @Provides
-    @PerActivity
     public MoviesRepository providesMoviesService(Context context, mdb.com.data.api.MoviesService theMovieDbService) {
         return new MoviesRepository(context, theMovieDbService);
     }

@@ -1,5 +1,6 @@
 package mdb.com.view.moviedetails.reviews;
 
+import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,18 +10,23 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mdb.com.R;
-import mdb.com.data.api.entity.ReviewEntity;
+import mdb.com.data.api.entity.MovieReviewEntity;
 import java.util.List;
+import mdb.com.data.api.entity.MovieTrailerEntity;
+import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 
 /**
  * @author james on 8/21/17.
  */
 
-public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapter.ReviewViewHolder> {
+public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsAdapter.ReviewViewHolder> {
 
-    @Nullable
-    private List<ReviewEntity> reviews;
+    private UpdateReviewsView updateReviewsView;
 
+    public MovieReviewsAdapter(Cursor cursor, UpdateReviewsView updateReviewsView) {
+        super(cursor);
+        this.updateReviewsView = updateReviewsView;
+    }
 
     @Override
     public ReviewViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -29,28 +35,17 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
     }
 
     @Override
-    public void onBindViewHolder(ReviewViewHolder holder, int position) {
-        if (reviews != null) {
-            holder.reviewTitle.setText(reviews.get(position).getAuthor());
-            holder.description.setText(reviews.get(position).getContent());
-        }
+    public void onBindViewHolder(ReviewViewHolder viewHolder, Cursor cursor) {
+        MovieReviewEntity reviewEntity = MovieReviewEntity.fromCursor(cursor);
+        viewHolder.reviewTitle.setText(reviewEntity.getAuthor());
+        viewHolder.description.setText(reviewEntity.getContent());
 
     }
 
     @Override
-    public int getItemCount() {
-        if (reviews != null) {
-            return reviews.size();
-        } else {
-            return 0;
-        }
+    public void onEmptyCursor() {
+        updateReviewsView.updateReviewsView();
     }
-
-    public void setReviews(List<ReviewEntity> list) {
-        this.reviews = list;
-        notifyDataSetChanged();
-    }
-
 
     class ReviewViewHolder extends RecyclerView.ViewHolder {
 
@@ -63,5 +58,9 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+    }
+
+    public interface UpdateReviewsView {
+        void updateReviewsView();
     }
 }
