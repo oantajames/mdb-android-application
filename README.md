@@ -1,2 +1,2 @@
  **MDb**
-![](https://raw.githubusercontent.com/oantajames/newm/stage-2/art/Artboard_mdb.jpg)
+![](https://raw.githubusercontent.com/oantajames/mdb-android-application/development/art/mdb_mockup.jpg)
