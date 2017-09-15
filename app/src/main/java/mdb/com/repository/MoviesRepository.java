@@ -13,6 +13,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 
 import mdb.com.data.api.MoviesService;
@@ -69,7 +71,7 @@ public class MoviesRepository {
         service.queryMovies(sort, page)
                 .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
-                .map(QueryMoviesResponse::getResults)
+                .map(movieEntityQueryMoviesResponse -> getMoviesWithNoAdult(movieEntityQueryMoviesResponse.getResults()))
                 .flatMapIterable(movieEntities -> movieEntities)
                 .map(MoviesRepository.this::saveMovie)
                 .map(MoviesContract::getIdFromUri)
@@ -91,6 +93,16 @@ public class MoviesRepository {
                         sendUpdateFinishedBroadcast(true);
                     }
                 });
+    }
+
+    private List<MovieEntity> getMoviesWithNoAdult(List<MovieEntity> entityQueryMoviesResponse) {
+        List<MovieEntity> moviesWithNoAdult = new ArrayList<>();
+        for (MovieEntity entity : entityQueryMoviesResponse) {
+            if (!entity.adult) {
+                moviesWithNoAdult.add(entity);
+            }
+        }
+        return moviesWithNoAdult;
     }
 
     private void saveMovieReference(Long movieId, String sort) {

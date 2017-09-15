@@ -30,7 +30,6 @@ public class MoviesProvider extends ContentProvider {
     private static final int REVIEWS = 108;
     private static final int REVIEWS_WITH_MOVIE_ID = 109;
 
-    // movies._id = ?
     private static final String MOVIE_ID_SELECTION =
             MoviesContract.MovieEntry.TABLE_NAME + "." + MoviesContract.MovieEntry._ID + " = ? ";
 
@@ -56,9 +55,9 @@ public class MoviesProvider extends ContentProvider {
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TRAILERS, TRAILERS);
 
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TRAILERS + "/#", TRAILERS_WITH_MOVIE_ID);
-        //TODO -ADD ALSO FOR REVIEWS WITH ID
-    }
 
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_REVIEWS + "/#", REVIEWS_WITH_MOVIE_ID);
+    }
 
     @Override
     public boolean onCreate() {
@@ -130,7 +129,7 @@ public class MoviesProvider extends ContentProvider {
                 break;
             case REVIEWS_WITH_MOVIE_ID:
                 long reviewsMoviesId = ContentUris.parseId(uri);
-                selection = String.format("%s = ?", MoviesContract.TrailersEntry.MOVIE_ID);
+                selection = String.format("%s = ?", MoviesContract.ReviewsEntry.MOVIE_ID);
                 selectionArgs = new String[]{String.valueOf(reviewsMoviesId)};
                 cursor = dbHelper.getReadableDatabase().query(MoviesContract.TABLE_REVIEWS,
                         projection,

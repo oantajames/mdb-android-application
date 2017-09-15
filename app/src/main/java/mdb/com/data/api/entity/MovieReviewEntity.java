@@ -11,7 +11,7 @@ import static mdb.com.data.db.MoviesContract.getColumnString;
 
 
 @SuppressWarnings("ALL")
-public class ReviewEntity {
+public class MovieReviewEntity {
 
     @SerializedName("id")
     @Expose
@@ -27,7 +27,11 @@ public class ReviewEntity {
     public String url;
     public int movieId;
 
-    public ReviewEntity(Cursor cursor) {
+    public MovieReviewEntity() {
+
+    }
+
+    public MovieReviewEntity(Cursor cursor) {
         this.id = getColumnString(cursor, ReviewsEntry._ID);
         this.author = getColumnString(cursor, ReviewsEntry.AUTHOR);
         this.content = getColumnString(cursor, ReviewsEntry.CONTENT);
@@ -35,14 +39,24 @@ public class ReviewEntity {
         this.movieId = getColumnInt(cursor, ReviewsEntry.MOVIE_ID);
     }
 
-    public static ContentValues convert(ReviewEntity reviewEntity, int movieId) {
+    public static ContentValues convert(MovieReviewEntity movieReviewEntity, int movieId) {
         ContentValues content = new ContentValues();
-        content.put(ReviewsEntry._ID, reviewEntity.id);
-        content.put(ReviewsEntry.AUTHOR, reviewEntity.author);
-        content.put(ReviewsEntry.CONTENT, reviewEntity.content);
+        content.put(ReviewsEntry._ID, movieReviewEntity.id);
+        content.put(ReviewsEntry.AUTHOR, movieReviewEntity.author);
+        content.put(ReviewsEntry.CONTENT, movieReviewEntity.content);
         content.put(ReviewsEntry.MOVIE_ID, movieId);
-        content.put(ReviewsEntry.URL, reviewEntity.url);
+        content.put(ReviewsEntry.URL, movieReviewEntity.url);
         return content;
+    }
+
+    public static MovieReviewEntity fromCursor(Cursor cursor) {
+        MovieReviewEntity movieReviewEntity = new MovieReviewEntity();
+        movieReviewEntity.setMovieId(getColumnInt(cursor, ReviewsEntry.MOVIE_ID));
+        movieReviewEntity.setId(getColumnString(cursor, ReviewsEntry._ID));
+        movieReviewEntity.setAuthor(getColumnString(cursor, ReviewsEntry.AUTHOR));
+        movieReviewEntity.setContent(getColumnString(cursor, ReviewsEntry.CONTENT));
+        movieReviewEntity.setUrl(getColumnString(cursor, ReviewsEntry.URL));
+        return movieReviewEntity;
     }
 
     public String getId() {

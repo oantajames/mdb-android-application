@@ -1,7 +1,7 @@
 package mdb.com.data.api.reponse;
 
 import com.google.gson.annotations.SerializedName;
-import mdb.com.data.api.entity.ReviewEntity;
+import mdb.com.data.api.entity.MovieReviewEntity;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ public class MovieReviewsResponse {
 
     public int page;
     @SerializedName("results")
-    public List<ReviewEntity> reviews;
+    public List<MovieReviewEntity> reviews;
 
     @SerializedName("total_pages")
     public int totalPages;
@@ -30,7 +30,7 @@ public class MovieReviewsResponse {
         return page;
     }
 
-    public List<ReviewEntity> getReviews() {
+    public List<MovieReviewEntity> getReviews() {
         return reviews;
     }
 

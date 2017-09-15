@@ -112,13 +112,33 @@
             android:textColor="@android:color/white"
             android:textSize="25sp"
             android:textStyle="bold"/>
-        <!--TODO : add a progress bar for the trailers and reviews-->
 
-        <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/trailer_recycler_view"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="135dp"
-            android:layout_margin="13dp"/>
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/no_trailers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="SORRY, NO TRAILERS"
+                android:textColor="@color/color_mdb_green"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+
+            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/trailer_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="135dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="13dp"
+                android:layout_marginRight="13dp"/>
+
+
+        </RelativeLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -129,14 +149,30 @@
             android:textSize="25sp"
             android:textStyle="bold"/>
 
-        <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/reviews_recycler_view"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:layout_marginEnd="13dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginTop="13dp"
-            android:scrollbars="vertical"/>
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/no_reviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="SORRY, NO REVIEWS"
+                android:textColor="@color/color_mdb_green"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/reviews_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:layout_marginEnd="13dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="13dp"
+                android:scrollbars="vertical"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

@@ -184,8 +184,7 @@ public class MoviesContract {
 
         static final String SQL_CREATE_TABLE_REVIEWS = String.format("CREATE TABLE %s"
                         + " (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT, %s INTEGER, %s TEXT)",
-                TABLE_REVIEWS, _ID, AUTHOR, CONTENT, MOVIE_ID, URL
-        );
+                TABLE_REVIEWS, _ID, AUTHOR, CONTENT, MOVIE_ID, URL);
     }
 
     public static final class TrailersEntry implements BaseColumns {
@@ -207,8 +206,7 @@ public class MoviesContract {
 
         static final String SQL_CREATE_TABLE_TRAILERS = String.format("CREATE TABLE %s"
                         + " (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT,  %s TEXT, %s TEXT, %s INTEGER, %s TEXT, %s INTEGER, %s TEXT)",
-                TABLE_TRAILERS, _ID, ISO6391, ISO31661, KEY, NAME, MOVIE_ID, SITE, SIZE, TYPE
-        );
+                TABLE_TRAILERS, _ID, ISO6391, ISO31661, KEY, NAME, MOVIE_ID, SITE, SIZE, TYPE);
     }
 
     public static String getColumnString(Cursor cursor, String columnName) {

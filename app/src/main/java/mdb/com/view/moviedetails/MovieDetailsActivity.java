@@ -61,11 +61,12 @@ import static mdb.com.data.api.ApiConstants.BASE_IMAGE_URL;
  * @author james on 8/1/17.
  */
 
-public class MovieDetailsActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieDetailsActivity extends BaseActivity {
 
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
-    private static final int LOADER_ID = 1;
 
+    private static final int TRAILERS_LOADER = 1;
+    private static final int REVIEWS_LOADER = 2;
 
     @Bind(R.id.header)
     SimpleDraweeView movieHeader;
@@ -107,18 +108,16 @@ public class MovieDetailsActivity extends BaseActivity implements LoaderManager.
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(MoviesRepository.BROADCAST_UPDATE_FINISHED)) {
+            if (action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_TRAILERS) || action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS)) {
                 if (!intent.getBooleanExtra(MovieDetailsRepository.SUCCESSFUL_UPDATED, true)) {
+                    //todo show a custom view with no reviews/trailers deppending on the request
                     Snackbar.make(scrollView, R.string.error_failed_to_update_movies,
                             Snackbar.LENGTH_LONG)
                             .show();
-                } else {
-                    getContentResolver().notifyChange(MoviesContract.TrailersEntry.CONTENT_URI, null);
                 }
             }
         }
     };
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -128,10 +127,11 @@ public class MovieDetailsActivity extends BaseActivity implements LoaderManager.
         ButterKnife.bind(this);
         setFlowTextViewAppearance();
         movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        getLoaderManager().initLoader(TRAILERS_LOADER, null, trailersCallback);
+        getLoaderManager().initLoader(REVIEWS_LOADER, null, reviewsCallback);
         setFavoritesButtonView();
         movieTrailersAdapter = new MovieTrailersAdapter(null);
-        reviewsAdapter = new MovieReviewsAdapter();
+        reviewsAdapter = new MovieReviewsAdapter(null);
         bindViews(movieEntity);
     }
 
@@ -140,10 +140,10 @@ public class MovieDetailsActivity extends BaseActivity implements LoaderManager.
     protected void onResume() {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE);
+        intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
-        movieDetailsRepository.loadVideos(movieEntity);
-        movieDetailsRepository.loadMovieReviews(movieEntity);
+        movieDetailsRepository.retrieveTrailers(movieEntity);
+        movieDetailsRepository.retrieveReviews(movieEntity);
     }
 
     @Override
@@ -273,22 +273,42 @@ public class MovieDetailsActivity extends BaseActivity implements LoaderManager.
         }
     }
 
-    //TODO - ADD ANOTHER LOADER CALLBACK FOR THE REVIEWS
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    private final LoaderManager.LoaderCallbacks<Cursor> trailersCallback = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new CursorLoader(getApplicationContext(), ContentUris.withAppendedId(MoviesContract.TrailersEntry.CONTENT_URI, movieEntity.getId())
+                    , null, null, null, null);
+        }
 
-        return new CursorLoader(this, ContentUris.withAppendedId(MoviesContract.TrailersEntry.CONTENT_URI, movieEntity.getId())
-                , null, null, null, null);
-    }
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            movieTrailersAdapter.changeCursor(data);
+        }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        movieTrailersAdapter.changeCursor(data);
-    }
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            movieTrailersAdapter.changeCursor(null);
+        }
+    };
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        movieTrailersAdapter.changeCursor(null);
-    }
+
+    private final LoaderManager.LoaderCallbacks<Cursor> reviewsCallback = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new CursorLoader(getApplicationContext(), ContentUris.withAppendedId(MoviesContract.ReviewsEntry.CONTENT_URI, movieEntity.getId())
+                    , null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            reviewsAdapter.changeCursor(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            reviewsAdapter.changeCursor(null);
+        }
+    };
+
 }
 
