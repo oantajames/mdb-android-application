@@ -8,7 +8,7 @@ android {
         applicationId "mdb.com"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 1
+        versionCode 10
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -16,6 +16,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "API_KEY", '""')
         }
         debug {
             buildConfigField("String", "API_KEY", '""')
