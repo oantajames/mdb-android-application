@@ -42,6 +42,12 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         }
     }
 
+    private void checkCursorIfEmpty(Cursor cursor) {
+        if (cursor != null && cursor.getCount() == 0) {
+            onEmptyCursor();
+        }
+    }
+
     public Cursor getCursor() {
         return mCursor;
     }
@@ -69,6 +75,8 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
 
     public abstract void onBindViewHolder(VH viewHolder, Cursor cursor);
 
+    public abstract void onEmptyCursor();
+
     @Override
     public void onBindViewHolder(VH viewHolder, int position) {
         if (!mDataValid) {
@@ -85,6 +93,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
      * closed.
      */
     public void changeCursor(Cursor cursor) {
+        checkCursorIfEmpty(cursor);
         Cursor old = swapCursor(cursor);
         if (old != null) {
             old.close();

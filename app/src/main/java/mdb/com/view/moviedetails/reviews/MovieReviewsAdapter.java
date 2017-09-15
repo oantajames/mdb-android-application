@@ -21,8 +21,11 @@ import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 
 public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsAdapter.ReviewViewHolder> {
 
-    public MovieReviewsAdapter(Cursor cursor) {
+    private UpdateReviewsView updateReviewsView;
+
+    public MovieReviewsAdapter(Cursor cursor, UpdateReviewsView updateReviewsView) {
         super(cursor);
+        this.updateReviewsView = updateReviewsView;
     }
 
     @Override
@@ -33,11 +36,15 @@ public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsA
 
     @Override
     public void onBindViewHolder(ReviewViewHolder viewHolder, Cursor cursor) {
-        if (cursor != null) {
-            MovieReviewEntity reviewEntity = MovieReviewEntity.fromCursor(cursor);
-            viewHolder.reviewTitle.setText(reviewEntity.getAuthor());
-            viewHolder.description.setText(reviewEntity.getContent());
-        }
+        MovieReviewEntity reviewEntity = MovieReviewEntity.fromCursor(cursor);
+        viewHolder.reviewTitle.setText(reviewEntity.getAuthor());
+        viewHolder.description.setText(reviewEntity.getContent());
+
+    }
+
+    @Override
+    public void onEmptyCursor() {
+        updateReviewsView.updateReviewsView();
     }
 
     class ReviewViewHolder extends RecyclerView.ViewHolder {
@@ -51,5 +58,9 @@ public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsA
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+    }
+
+    public interface UpdateReviewsView {
+        void updateReviewsView();
     }
 }

@@ -69,14 +69,14 @@
             <android.support.v7.widget.CardView
                 android:layout_width="180dp"
                 android:layout_height="250dp"
-                android:background="@android:color/transparent"
-                card_view:cardCornerRadius="10dp"
+                card_view:cardBackgroundColor="@color/color_black"
+                card_view:cardCornerRadius="5dp"
                 card_view:cardElevation="3dp">
 
                 <ImageView
                     android:id="@+id/movie_poster"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="180dp"
+                    android:layout_height="250dp"
                     android:adjustViewBounds="true"
                     android:background="@android:color/transparent"
                     android:scaleType="centerCrop"/>
@@ -108,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="13dp"
-            android:text="TRAILERS"
+            android:text="@string/trailers"
             android:textColor="@android:color/white"
             android:textSize="25sp"
             android:textStyle="bold"/>
@@ -122,10 +122,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="SORRY, NO TRAILERS"
+                android:padding="13dp"
+                android:text="@string/no_trailers"
                 android:textColor="@color/color_mdb_green"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:visibility="gone"/>
 
 
             <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -144,7 +146,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="13dp"
-            android:text="REVIEWS"
+            android:text="@string/reviews"
             android:textColor="@android:color/white"
             android:textSize="25sp"
             android:textStyle="bold"/>
@@ -158,10 +160,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="SORRY, NO REVIEWS"
+                android:padding="13dp"
+                android:text="@string/no_reviews"
                 android:textColor="@color/color_mdb_green"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:visibility="gone"/>
 
             <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/reviews_recycler_view"

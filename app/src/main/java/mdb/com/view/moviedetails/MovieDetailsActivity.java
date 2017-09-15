@@ -24,6 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -61,7 +62,7 @@ import static mdb.com.data.api.ApiConstants.BASE_IMAGE_URL;
  * @author james on 8/1/17.
  */
 
-public class MovieDetailsActivity extends BaseActivity {
+public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAdapter.UpdateReviewsView, MovieTrailersAdapter.UpdateTrailersView {
 
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
 
@@ -94,6 +95,11 @@ public class MovieDetailsActivity extends BaseActivity {
     ImageView backButton;
     @Bind(R.id.scroll_view)
     ScrollView scrollView;
+    @Bind(R.id.no_reviews)
+    TextView noReviewsView;
+    @Bind(R.id.no_trailers)
+    TextView noTrailersView;
+
 
     @Inject
     FavoritesRepository favoritesRepository;
@@ -108,16 +114,24 @@ public class MovieDetailsActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_TRAILERS) || action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS)) {
+            if (action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_TRAILERS)) {
                 if (!intent.getBooleanExtra(MovieDetailsRepository.SUCCESSFUL_UPDATED, true)) {
-                    //todo show a custom view with no reviews/trailers deppending on the request
-                    Snackbar.make(scrollView, R.string.error_failed_to_update_movies,
-                            Snackbar.LENGTH_LONG)
-                            .show();
+                    showError();
+                }
+            } else if (action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS)) {
+                if (!intent.getBooleanExtra(MovieDetailsRepository.SUCCESSFUL_UPDATED, true)) {
+                    showError();
                 }
             }
         }
     };
+
+    private void showError() {
+        Snackbar.make(scrollView, R.string.error_failed_to_update_movies,
+                Snackbar.LENGTH_LONG)
+                .show();
+    }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -130,8 +144,8 @@ public class MovieDetailsActivity extends BaseActivity {
         getLoaderManager().initLoader(TRAILERS_LOADER, null, trailersCallback);
         getLoaderManager().initLoader(REVIEWS_LOADER, null, reviewsCallback);
         setFavoritesButtonView();
-        movieTrailersAdapter = new MovieTrailersAdapter(null);
-        reviewsAdapter = new MovieReviewsAdapter(null);
+        movieTrailersAdapter = new MovieTrailersAdapter(null, this);
+        reviewsAdapter = new MovieReviewsAdapter(null, this);
         bindViews(movieEntity);
     }
 
@@ -141,6 +155,7 @@ public class MovieDetailsActivity extends BaseActivity {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS);
+        intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE_TRAILERS);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
         movieDetailsRepository.retrieveTrailers(movieEntity);
         movieDetailsRepository.retrieveReviews(movieEntity);
@@ -310,5 +325,16 @@ public class MovieDetailsActivity extends BaseActivity {
         }
     };
 
+    @Override
+    public void updateReviewsView() {
+        reviewsRecyclerView.setVisibility(View.GONE);
+        noReviewsView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void updateTrailersView() {
+        trailersRecyclerView.setVisibility(View.GONE);
+        noTrailersView.setVisibility(View.VISIBLE);
+    }
 }
 

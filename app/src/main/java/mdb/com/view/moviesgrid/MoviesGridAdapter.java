@@ -54,6 +54,11 @@ public class MoviesGridAdapter extends CursorRecyclerViewAdapter<MoviesGridAdapt
         }
     }
 
+    @Override
+    public void onEmptyCursor() {
+        //do nothing
+    }
+
     @Nullable
     public MovieEntity getItem(int position) {
         Cursor cursor = getCursor();

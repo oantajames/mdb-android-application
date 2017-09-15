@@ -28,7 +28,6 @@ import mdb.com.view.moviedetails.MovieDetailsActivity;
 
 public class MovieDetailsRepository {
 
-
     public static final String BROADCAST_ON_COMPLETE_TRAILERS = "trailersCompleted";
     public static final String BROADCAST_ON_COMPLETE_REVIEWS = "reviewsCompleted";
 

@@ -35,9 +35,11 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
     private OnItemClickListener onItemClickListener;
 
     private Context context;
+    private UpdateTrailersView updateTrailersView;
 
-    public MovieTrailersAdapter(Cursor cursor) {
+    public MovieTrailersAdapter(Cursor cursor, UpdateTrailersView updateTrailersView) {
         super(cursor);
+        this.updateTrailersView = updateTrailersView;
     }
 
     @Override
@@ -52,6 +54,11 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
             MovieTrailerEntity trailerEntity = MovieTrailerEntity.fromCursor(cursor);
             viewHolder.setVideoEntity(trailerEntity);
         }
+    }
+
+    @Override
+    public void onEmptyCursor() {
+        updateTrailersView.updateTrailersView();
     }
 
     @Nullable
@@ -109,5 +116,9 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
                     .into(movieVideoThumbnail);
         }
 
+    }
+
+    public interface UpdateTrailersView {
+        void updateTrailersView();
     }
 }
