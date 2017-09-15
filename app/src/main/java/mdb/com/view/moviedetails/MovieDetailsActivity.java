@@ -326,14 +326,12 @@ public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAd
     };
 
     @Override
-    public void updateReviewsView() {
-        reviewsRecyclerView.setVisibility(View.GONE);
+    public void updateReviewsViewForEmptyData() {
         noReviewsView.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void updateTrailersView() {
-        trailersRecyclerView.setVisibility(View.GONE);
+    public void updateTrailersViewForEmptyData() {
         noTrailersView.setVisibility(View.VISIBLE);
     }
 }

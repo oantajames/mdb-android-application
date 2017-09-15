@@ -17,10 +17,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import mdb.com.R;
-import mdb.com.data.api.entity.MovieEntity;
 import mdb.com.data.api.entity.MovieTrailerEntity;
 
-import java.util.List;
 import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 
 /**
@@ -58,7 +56,7 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
 
     @Override
     public void onEmptyCursor() {
-        updateTrailersView.updateTrailersView();
+        updateTrailersView.updateTrailersViewForEmptyData();
     }
 
     @Nullable
@@ -119,6 +117,6 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
     }
 
     public interface UpdateTrailersView {
-        void updateTrailersView();
+        void updateTrailersViewForEmptyData();
     }
 }

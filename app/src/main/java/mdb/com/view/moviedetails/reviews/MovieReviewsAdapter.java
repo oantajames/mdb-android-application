@@ -1,7 +1,6 @@
 package mdb.com.view.moviedetails.reviews;
 
 import android.database.Cursor;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +10,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import mdb.com.R;
 import mdb.com.data.api.entity.MovieReviewEntity;
-import java.util.List;
-import mdb.com.data.api.entity.MovieTrailerEntity;
 import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 
 /**
@@ -44,7 +41,7 @@ public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsA
 
     @Override
     public void onEmptyCursor() {
-        updateReviewsView.updateReviewsView();
+        updateReviewsView.updateReviewsViewForEmptyData();
     }
 
     class ReviewViewHolder extends RecyclerView.ViewHolder {
@@ -61,6 +58,6 @@ public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsA
     }
 
     public interface UpdateReviewsView {
-        void updateReviewsView();
+        void updateReviewsViewForEmptyData();
     }
 }
