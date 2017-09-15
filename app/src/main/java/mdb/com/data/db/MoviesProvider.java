@@ -1,9 +1,11 @@
 package mdb.com.data.db;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -18,13 +20,16 @@ import java.util.HashSet;
 
 public class MoviesProvider extends ContentProvider {
 
-    static final int MOVIES = 122;
-    static final int MOVIE_BY_ID = 111;
-    static final int MOST_POPULAR_MOVIES = 213;
-    static final int TOP_RATED_MOVIES = 214;
-    static final int FAVORITES_MOVIES = 323;
+    private static final int MOVIES = 101;
+    private static final int MOVIE_BY_ID = 102;
+    private static final int MOST_POPULAR_MOVIES = 103;
+    private static final int TOP_RATED_MOVIES = 104;
+    private static final int FAVORITES_MOVIES = 105;
+    private static final int TRAILERS = 106;
+    private static final int TRAILERS_WITH_MOVIE_ID = 107;
+    private static final int REVIEWS = 108;
+    private static final int REVIEWS_WITH_MOVIE_ID = 109;
 
-    // movies._id = ?
     private static final String MOVIE_ID_SELECTION =
             MoviesContract.MovieEntry.TABLE_NAME + "." + MoviesContract.MovieEntry._ID + " = ? ";
 
@@ -32,7 +37,7 @@ public class MoviesProvider extends ContentProvider {
 
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    private MoviesDbHelper dbHelper;
+    private MoviesProviderDatabaseHelper dbHelper;
 
     static {
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES, MOVIES);
@@ -44,12 +49,19 @@ public class MoviesProvider extends ContentProvider {
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TOP_RATED, TOP_RATED_MOVIES);
 
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITES, FAVORITES_MOVIES);
-    }
 
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_REVIEWS, REVIEWS);
+
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TRAILERS, TRAILERS);
+
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_TRAILERS + "/#", TRAILERS_WITH_MOVIE_ID);
+
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_REVIEWS + "/#", REVIEWS_WITH_MOVIE_ID);
+    }
 
     @Override
     public boolean onCreate() {
-        dbHelper = new MoviesDbHelper(getContext());
+        dbHelper = new MoviesProviderDatabaseHelper(getContext());
         return true;
     }
 
@@ -103,6 +115,28 @@ public class MoviesProvider extends ContentProvider {
             case FAVORITES_MOVIES:
                 cursor = getMovieFromReferenceTable(MoviesContract.MyFavoritesMoviesEntry.TABLE_NAME,
                         projection, selection, selectionArgs, sortOrder);
+                break;
+            case TRAILERS_WITH_MOVIE_ID:
+                long trailerMovieId = ContentUris.parseId(uri);
+                selection = String.format("%s = ?", MoviesContract.TrailersEntry.MOVIE_ID);
+                selectionArgs = new String[]{String.valueOf(trailerMovieId)};
+                cursor = dbHelper.getReadableDatabase().query(MoviesContract.TABLE_TRAILERS,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null, null,
+                        sortOrder);
+                break;
+            case REVIEWS_WITH_MOVIE_ID:
+                long reviewsMoviesId = ContentUris.parseId(uri);
+                selection = String.format("%s = ?", MoviesContract.ReviewsEntry.MOVIE_ID);
+                selectionArgs = new String[]{String.valueOf(reviewsMoviesId)};
+                cursor = dbHelper.getReadableDatabase().query(MoviesContract.TABLE_REVIEWS,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null, null,
+                        sortOrder);
                 break;
             default:
                 return null;
@@ -261,27 +295,40 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        final String tableName;
+        int insertedRows = 0;
         switch (uriMatcher.match(uri)) {
             case MOVIES:
-                db.beginTransaction();
-                int returnCount = 0;
-                try {
-                    for (ContentValues contentValue : values) {
-                        long id = db.insertWithOnConflict(MoviesContract.MovieEntry.TABLE_NAME,
-                                null, contentValue, SQLiteDatabase.CONFLICT_REPLACE);
-                        if (id != -1) {
-                            returnCount++;
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
-
+                tableName = MoviesContract.MovieEntry.TABLE_NAME;
+                break;
+            case REVIEWS:
+                tableName = MoviesContract.ReviewsEntry.TABLE_NAME;
+                break;
+            case TRAILERS:
+                tableName = MoviesContract.TrailersEntry.TABLE_NAME;
+                break;
             default:
                 return super.bulkInsert(uri, values);
         }
+
+        db.beginTransaction();
+        try {
+            for (ContentValues contentValue : values) {
+                long id = db.insertWithOnConflict(tableName,
+                        null, contentValue, SQLiteDatabase.CONFLICT_REPLACE);
+                if (id != -1) {
+                    insertedRows++;
+                } else {
+                    throw new SQLException(String.format("Could not insert %s with id %s ",
+                            tableName, contentValue.toString()));
+                }
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return insertedRows;
+
     }
 }

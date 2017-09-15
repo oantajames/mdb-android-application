@@ -1,20 +1,31 @@
 package mdb.com.view.moviedetails;
 
+import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.Loader;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import butterknife.Bind;
@@ -25,28 +36,23 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.drawee.view.SimpleDraweeView;
 import mdb.com.R;
-import mdb.com.data.api.MoviesService;
 import mdb.com.data.api.entity.MovieEntity;
-import mdb.com.data.api.entity.MovieVideoEntity;
-import mdb.com.data.api.entity.ReviewEntity;
-import mdb.com.data.api.reponse.MovieReviewsResponse;
-import mdb.com.data.api.reponse.MovieVideosResponse;
+import mdb.com.data.api.entity.MovieTrailerEntity;
+import mdb.com.data.db.MoviesContract;
 import mdb.com.di.component.DaggerMovieDetailsComponent;
 import mdb.com.di.module.MovieDetailsModule;
-import mdb.com.sync.FavoriteService;
+import mdb.com.repository.FavoritesRepository;
+import mdb.com.repository.MovieDetailsRepository;
+import mdb.com.repository.MoviesRepository;
+import mdb.com.util.rx.DisposableManager;
 import mdb.com.util.SharedPreferencesUtil;
-import mdb.com.view.BaseActivity;
+import mdb.com.view.base.BaseActivity;
 import mdb.com.view.moviedetails.reviews.MovieReviewsAdapter;
 import mdb.com.view.moviedetails.trailers.MovieTrailersAdapter;
 import mdb.com.view.moviesgrid.MoviesGridActivity;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import uk.co.deanwild.flowtextview.FlowTextView;
 
 import static mdb.com.data.api.ApiConstants.BASE_BACKDROP_URL;
@@ -56,14 +62,12 @@ import static mdb.com.data.api.ApiConstants.BASE_IMAGE_URL;
  * @author james on 8/1/17.
  */
 
-public class MovieDetailsActivity extends BaseActivity {
+public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAdapter.UpdateReviewsView, MovieTrailersAdapter.UpdateTrailersView {
 
     public static final String EXTRA_MOVIE_IMAGE_TRANSITION = "movieImageTransition";
 
-    private static final String LOG_TAG = MovieDetailsActivity.class.getSimpleName();
-
-    @Inject
-    MoviesService moviesService;
+    private static final int TRAILERS_LOADER = 1;
+    private static final int REVIEWS_LOADER = 2;
 
     @Bind(R.id.header)
     SimpleDraweeView movieHeader;
@@ -89,13 +93,45 @@ public class MovieDetailsActivity extends BaseActivity {
     ImageView favoritesButton;
     @Bind(R.id.back_button)
     ImageView backButton;
+    @Bind(R.id.scroll_view)
+    ScrollView scrollView;
+    @Bind(R.id.no_reviews)
+    TextView noReviewsView;
+    @Bind(R.id.no_trailers)
+    TextView noTrailersView;
+
 
     @Inject
-    FavoriteService favoriteService;
+    FavoritesRepository favoritesRepository;
+    @Inject
+    MovieDetailsRepository movieDetailsRepository;
 
     private MovieTrailersAdapter movieTrailersAdapter;
     private MovieReviewsAdapter reviewsAdapter;
     private MovieEntity movieEntity;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_TRAILERS)) {
+                if (!intent.getBooleanExtra(MovieDetailsRepository.SUCCESSFUL_UPDATED, true)) {
+                    showError();
+                }
+            } else if (action.equals(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS)) {
+                if (!intent.getBooleanExtra(MovieDetailsRepository.SUCCESSFUL_UPDATED, true)) {
+                    showError();
+                }
+            }
+        }
+    };
+
+    private void showError() {
+        Snackbar.make(scrollView, R.string.error_failed_to_update_movies,
+                Snackbar.LENGTH_LONG)
+                .show();
+    }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,25 +141,45 @@ public class MovieDetailsActivity extends BaseActivity {
         ButterKnife.bind(this);
         setFlowTextViewAppearance();
         movieEntity = getIntent().getExtras().getParcelable(MoviesGridActivity.MOVIE_ENTITY);
+        getLoaderManager().initLoader(TRAILERS_LOADER, null, trailersCallback);
+        getLoaderManager().initLoader(REVIEWS_LOADER, null, reviewsCallback);
         setFavoritesButtonView();
-        movieTrailersAdapter = new MovieTrailersAdapter(this);
-        reviewsAdapter = new MovieReviewsAdapter();
+        movieTrailersAdapter = new MovieTrailersAdapter(null, this);
+        reviewsAdapter = new MovieReviewsAdapter(null, this);
         bindViews(movieEntity);
     }
 
-    private void setFavoritesButtonView() {
-        if (favoriteService.isFavorite(movieEntity)) {
-            favoritesButton.setSelected(true);
-        } else {
-            favoritesButton.setSelected(false);
-        }
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadMovieVideos(movieEntity);
-        loadMovieReviews(movieEntity);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE_REVIEWS);
+        intentFilter.addAction(MovieDetailsRepository.BROADCAST_ON_COMPLETE_TRAILERS);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
+        movieDetailsRepository.retrieveTrailers(movieEntity);
+        movieDetailsRepository.retrieveReviews(movieEntity);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        DisposableManager.dispose();
+        super.onDestroy();
+    }
+
+
+    private void setFavoritesButtonView() {
+        if (favoritesRepository.isFavorite(movieEntity)) {
+            favoritesButton.setSelected(true);
+        } else {
+            favoritesButton.setSelected(false);
+        }
     }
 
     private void setFlowTextViewAppearance() {
@@ -142,10 +198,10 @@ public class MovieDetailsActivity extends BaseActivity {
     @OnClick(R.id.favorites_button)
     public void onFavoritesClick(View v) {
         if (v.isSelected()) {
-            favoriteService.removeFromFavorites(movieEntity);
+            favoritesRepository.removeFromFavorites(movieEntity);
             v.setSelected(false);
         } else {
-            favoriteService.addToFavorites(movieEntity);
+            favoritesRepository.addToFavorites(movieEntity);
             v.setSelected(true);
         }
     }
@@ -224,7 +280,7 @@ public class MovieDetailsActivity extends BaseActivity {
     }
 
     private void onMovieVideoClicked(int position) {
-        MovieVideoEntity video = movieTrailersAdapter.getItem(position);
+        MovieTrailerEntity video = movieTrailersAdapter.getItem(position);
         if (video != null) {
             Intent intent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://www.youtube.com/watch?v=" + video.getKey()));
@@ -232,52 +288,53 @@ public class MovieDetailsActivity extends BaseActivity {
         }
     }
 
-    private void loadMovieVideos(MovieEntity movieEntity) {
-        moviesService.getMovieVideos(String.valueOf(movieEntity.getId()))
-                .compose(bindToLifecycle())
-                .subscribeOn(Schedulers.newThread())
-                .map(MovieVideosResponse::getTrailers)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<MovieVideoEntity>>() {
-                    @Override
-                    public void onCompleted() {
-                        // do nothing
-                    }
+    private final LoaderManager.LoaderCallbacks<Cursor> trailersCallback = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new CursorLoader(getApplicationContext(), ContentUris.withAppendedId(MoviesContract.TrailersEntry.CONTENT_URI, movieEntity.getId())
+                    , null, null, null, null);
+        }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(LOG_TAG, e.getMessage());
-                    }
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            movieTrailersAdapter.changeCursor(data);
+        }
 
-                    @Override
-                    public void onNext(List<MovieVideoEntity> movieVideos) {
-                        movieTrailersAdapter.setMovieVideos(movieVideos);
-                    }
-                });
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            movieTrailersAdapter.changeCursor(null);
+        }
+    };
+
+
+    private final LoaderManager.LoaderCallbacks<Cursor> reviewsCallback = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new CursorLoader(getApplicationContext(), ContentUris.withAppendedId(MoviesContract.ReviewsEntry.CONTENT_URI, movieEntity.getId())
+                    , null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            reviewsAdapter.changeCursor(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            reviewsAdapter.changeCursor(null);
+        }
+    };
+
+    @Override
+    public void updateReviewsView() {
+        reviewsRecyclerView.setVisibility(View.GONE);
+        noReviewsView.setVisibility(View.VISIBLE);
     }
 
-    private void loadMovieReviews(MovieEntity movieEntity) {
-        moviesService.getMovieReviews(String.valueOf(movieEntity.getId()))
-                .compose(bindToLifecycle())
-                .subscribeOn(Schedulers.newThread())
-                .map(MovieReviewsResponse::getReviews)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<ReviewEntity>>() {
-                    @Override
-                    public void onCompleted() {
-                        // do nothing
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(LOG_TAG, e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(List<ReviewEntity> movieReviews) {
-                        reviewsAdapter.setReviews(movieReviews);
-                    }
-                });
+    @Override
+    public void updateTrailersView() {
+        trailersRecyclerView.setVisibility(View.GONE);
+        noTrailersView.setVisibility(View.VISIBLE);
     }
 }
 

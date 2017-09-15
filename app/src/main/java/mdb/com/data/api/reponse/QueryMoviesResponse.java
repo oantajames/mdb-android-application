@@ -3,7 +3,7 @@ package mdb.com.data.api.reponse;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-public class DiscoverAndSearchResponse<T> {
+public class QueryMoviesResponse<T> {
 
     @SerializedName("page")
     private int page;
@@ -17,7 +17,7 @@ public class DiscoverAndSearchResponse<T> {
     @SerializedName("total_results")
     private long totalResults;
 
-    public DiscoverAndSearchResponse(int page, List<T> results, int totalPages, long totalResults) {
+    public QueryMoviesResponse(int page, List<T> results, int totalPages, long totalResults) {
         this.page = page;
         this.results = results;
         this.totalPages = totalPages;

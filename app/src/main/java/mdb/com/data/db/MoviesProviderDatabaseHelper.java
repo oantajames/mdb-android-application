@@ -8,14 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @author james on 9/4/17.
  */
 
-public class MoviesDbHelper extends SQLiteOpenHelper {
+public class MoviesProviderDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "moviesDatabaseProvider";
 
-    private static final int DATABASE_SCHEMA_VERSION = 1;
+    private static final int DATABASE_SCHEMA_VERSION = 4;
     private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS ";
 
-    public MoviesDbHelper(Context context) {
+    public MoviesProviderDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_SCHEMA_VERSION);
     }
 
@@ -25,6 +25,8 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         db.execSQL(MoviesContract.MostPopularMoviesEntry.SQL_CREATE_TABLE);
         db.execSQL(MoviesContract.TopRatedMoviesEntry.SQL_CREATE_TABLE);
         db.execSQL(MoviesContract.MyFavoritesMoviesEntry.SQL_CREATE_TABLE);
+        db.execSQL(MoviesContract.TrailersEntry.SQL_CREATE_TABLE_TRAILERS);
+        db.execSQL(MoviesContract.ReviewsEntry.SQL_CREATE_TABLE_REVIEWS);
     }
 
     @Override
@@ -33,6 +35,8 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DROP_TABLE_IF_EXISTS + MoviesContract.MostPopularMoviesEntry.TABLE_NAME);
         db.execSQL(SQL_DROP_TABLE_IF_EXISTS + MoviesContract.TopRatedMoviesEntry.TABLE_NAME);
         db.execSQL(SQL_DROP_TABLE_IF_EXISTS + MoviesContract.MyFavoritesMoviesEntry.TABLE_NAME);
+        db.execSQL(SQL_DROP_TABLE_IF_EXISTS + MoviesContract.TrailersEntry.TABLE_NAME);
+        db.execSQL(SQL_DROP_TABLE_IF_EXISTS + MoviesContract.ReviewsEntry.TABLE_NAME);
         onCreate(db);
     }
 }

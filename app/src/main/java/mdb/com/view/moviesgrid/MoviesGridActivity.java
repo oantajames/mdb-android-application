@@ -11,8 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-import android.widget.Toolbar;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -22,15 +20,17 @@ import mdb.com.di.HasComponent;
 import mdb.com.di.component.DaggerMoviesGridComponent;
 import mdb.com.di.component.MoviesGridComponent;
 import mdb.com.di.module.MoviesGridModule;
-import mdb.com.sync.Sort;
-import mdb.com.view.BaseActivity;
+import mdb.com.util.rx.DisposableManager;
+import mdb.com.util.Sort;
+import mdb.com.view.base.BaseActivity;
 import mdb.com.view.moviedetails.MovieDetailsActivity;
 import mdb.com.view.moviesgrid.util.OnItemSelectedListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesGridActivity extends BaseActivity implements HasComponent<MoviesGridComponent>, OnItemSelectedListener {
+public class MoviesGridActivity extends BaseActivity
+        implements HasComponent<MoviesGridComponent>, OnItemSelectedListener {
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, MoviesGridActivity.class);
@@ -64,6 +64,12 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
         viewPager.setCurrentItem(1);
     }
 
+    @Override
+    protected void onDestroy() {
+        DisposableManager.dispose();
+        super.onDestroy();
+    }
+
     private void inject() {
         moviesGridComponent = (DaggerMoviesGridComponent) DaggerMoviesGridComponent.builder()
                 .applicationComponent(getApplicationComponent())
@@ -73,13 +79,13 @@ public class MoviesGridActivity extends BaseActivity implements HasComponent<Mov
     }
 
     private void initTabIcons() {
-        TextView mostPopular = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
-        mostPopular.setText(getString(R.string.most_popular));
-        tabLayout.getTabAt(0).setCustomView(mostPopular);
-
         TextView topRated = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
         topRated.setText(getString(R.string.top_rated));
-        tabLayout.getTabAt(1).setCustomView(topRated);
+        tabLayout.getTabAt(0).setCustomView(topRated);
+
+        TextView mostPopular = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
+        mostPopular.setText(getString(R.string.most_popular));
+        tabLayout.getTabAt(1).setCustomView(mostPopular);
 
         TextView myFavorites = (TextView) LayoutInflater.from(this).inflate(R.layout.item_custom_tab, null);
         myFavorites.setText(getString(R.string.my_favorites));

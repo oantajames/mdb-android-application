@@ -8,7 +8,7 @@
     android:background="@android:color/white"
     android:elevation="3dp"
     android:orientation="vertical"
-    card_view:cardCornerRadius="5dp">
+    card_view:cardCornerRadius="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,13 +24,13 @@
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="James" />
+            tools:text="James"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_margin="5dp"
-            android:background="@color/separator_gray" />
+            android:background="@color/separator_gray"/>
 
         <TextView
             android:id="@+id/review_description"
@@ -39,7 +39,7 @@
             android:layout_margin="5dp"
             android:textColor="@color/color_black"
             android:textSize="13sp"
-            tools:text="@string/movie_description_default" />
+            tools:text="@string/movie_description_default"/>
 
     </LinearLayout>
 

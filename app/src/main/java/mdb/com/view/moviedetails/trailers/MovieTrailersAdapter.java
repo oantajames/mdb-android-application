@@ -1,6 +1,7 @@
 package mdb.com.view.moviedetails.trailers;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -16,27 +17,29 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import mdb.com.R;
-import mdb.com.data.api.entity.MovieVideoEntity;
+import mdb.com.data.api.entity.MovieEntity;
+import mdb.com.data.api.entity.MovieTrailerEntity;
 
 import java.util.List;
+import mdb.com.view.moviesgrid.util.CursorRecyclerViewAdapter;
 
 /**
  * @author james on 8/21/17.
  */
 
-public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdapter.TrailerViewHolder> {
+public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailersAdapter.TrailerViewHolder> {
 
     private static final String YOUTUBE_THUMBNAIL = "https://img.youtube.com/vi/%s/mqdefault.jpg";
 
     @Nullable
-    private List<MovieVideoEntity> movieVideos;
-    @Nullable
     private OnItemClickListener onItemClickListener;
 
     private Context context;
+    private UpdateTrailersView updateTrailersView;
 
-    public MovieTrailersAdapter(Context context) {
-        this.context = context;
+    public MovieTrailersAdapter(Cursor cursor, UpdateTrailersView updateTrailersView) {
+        super(cursor);
+        this.updateTrailersView = updateTrailersView;
     }
 
     @Override
@@ -46,49 +49,43 @@ public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdap
     }
 
     @Override
-    public void onBindViewHolder(TrailerViewHolder holder, int position) {
-        if (movieVideos != null) {
-            MovieVideoEntity video = movieVideos.get(position);
-            Glide.with(context)
-                    .load(String.format(YOUTUBE_THUMBNAIL, video.getKey()))
-                    .placeholder(Color.GRAY)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .centerCrop()
-                    .crossFade()
-                    .into(holder.movieVideoThumbnail);
+    public void onBindViewHolder(TrailerViewHolder viewHolder, Cursor cursor) {
+        if (cursor != null) {
+            MovieTrailerEntity trailerEntity = MovieTrailerEntity.fromCursor(cursor);
+            viewHolder.setVideoEntity(trailerEntity);
         }
     }
 
     @Override
-    public int getItemCount() {
-        if (movieVideos != null) {
-            return movieVideos.size();
-        } else {
-            return 0;
-        }
+    public void onEmptyCursor() {
+        updateTrailersView.updateTrailersView();
     }
 
-    public void setMovieVideos(@Nullable List<MovieVideoEntity> movieVideos) {
-        this.movieVideos = movieVideos;
-        notifyDataSetChanged();
+    @Nullable
+    public MovieTrailerEntity getItem(int position) {
+        Cursor cursor = getCursor();
+        if (cursor == null) {
+            return null;
+        }
+        if (position < 0 || position > cursor.getCount()) {
+            return null;
+        }
+        cursor.moveToFirst();
+        for (int i = 0; i < position; i++) {
+            cursor.moveToNext();
+        }
+        return MovieTrailerEntity.fromCursor(cursor);
     }
 
     public void setOnItemClickListener(@Nullable OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
 
-    public MovieVideoEntity getItem(int position) {
-        if (movieVideos == null || position < 0 || position > movieVideos.size()) {
-            return null;
-        }
-        return movieVideos.get(position);
-    }
-
-
     class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @Bind(R.id.movie_video_thumbnail)
         ImageView movieVideoThumbnail;
+        private MovieTrailerEntity entity;
 
         @Nullable
         private OnItemClickListener onItemClickListener;
@@ -96,6 +93,7 @@ public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdap
         public TrailerViewHolder(View itemView, @Nullable OnItemClickListener onItemClickListener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            context = itemView.getContext();
             this.onItemClickListener = onItemClickListener;
             itemView.setOnClickListener(this);
         }
@@ -107,5 +105,20 @@ public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdap
             }
         }
 
+        void setVideoEntity(MovieTrailerEntity trailerEntity) {
+            this.entity = trailerEntity;
+            Glide.with(context)
+                    .load(String.format(YOUTUBE_THUMBNAIL, trailerEntity.getKey()))
+                    .placeholder(Color.GRAY)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .centerCrop()
+                    .crossFade()
+                    .into(movieVideoThumbnail);
+        }
+
+    }
+
+    public interface UpdateTrailersView {
+        void updateTrailersView();
     }
 }

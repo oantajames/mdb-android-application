@@ -13,7 +13,6 @@ import static mdb.com.data.db.MoviesContract.getColumnDouble;
 import static mdb.com.data.db.MoviesContract.getColumnInt;
 import static mdb.com.data.db.MoviesContract.getColumnString;
 
-@SuppressWarnings("ALL")
 public class MovieEntity implements Parcelable {
 
     @SerializedName("vote_count")
