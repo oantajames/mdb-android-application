@@ -14,7 +14,7 @@
         android:layout_height="35dp"
         android:layout_centerVertical="true"
         android:layout_marginStart="16dp"
-        android:src="@drawable/mdb_logo"
+        android:src="@drawable/ic_mdb_logo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -38,7 +38,7 @@
         android:background="@drawable/rounded_edit_text"
         android:clickable="false"
         android:gravity="center_vertical"
-        android:hint="Search feature is coming soon..."
+        android:hint="Search feature coming soon..."
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:textColor="@android:color/white"

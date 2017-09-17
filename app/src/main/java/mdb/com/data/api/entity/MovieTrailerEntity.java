@@ -38,9 +38,7 @@ public class MovieTrailerEntity {
     public String type;
     public int movieId;
 
-    public MovieTrailerEntity(String id, String name) {
-        this.id = id;
-        this.name = name;
+    public MovieTrailerEntity() {
     }
 
     public MovieTrailerEntity(Cursor cursor) {
@@ -70,9 +68,7 @@ public class MovieTrailerEntity {
     }
 
     public static MovieTrailerEntity fromCursor(Cursor cursor) {
-        String id = String.valueOf(Math.toIntExact(cursor.getLong(cursor.getColumnIndex(TrailersEntry._ID))));
-        String name = cursor.getString(cursor.getColumnIndex(TrailersEntry.NAME));
-        MovieTrailerEntity movieTrailerEntity = new MovieTrailerEntity(id, name);
+        MovieTrailerEntity movieTrailerEntity = new MovieTrailerEntity();
         movieTrailerEntity.setIso6391(getColumnString(cursor, TrailersEntry.ISO6391));
         movieTrailerEntity.setIso31661(getColumnString(cursor, TrailersEntry.ISO31661));
         movieTrailerEntity.setKey(getColumnString(cursor, TrailersEntry.KEY));

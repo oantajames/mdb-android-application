@@ -90,6 +90,7 @@ public class MovieDetailsRepository {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.newThread())
                     .subscribe(new DisposingObserver<List<MovieReviewEntity>>() {
+
                         @Override
                         public void onError(@NonNull Throwable e) {
                             Log.e(LOG_TAG, e.getMessage());

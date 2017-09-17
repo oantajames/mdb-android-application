@@ -111,7 +111,8 @@
             android:text="@string/trailers"
             android:textColor="@android:color/white"
             android:textSize="25sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            tools:text="@string/trailers"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -130,7 +131,7 @@
                 android:visibility="gone"/>
 
 
-            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/trailer_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="135dp"
@@ -167,7 +168,7 @@
                 android:textStyle="bold"
                 android:visibility="gone"/>
 
-            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/reviews_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"

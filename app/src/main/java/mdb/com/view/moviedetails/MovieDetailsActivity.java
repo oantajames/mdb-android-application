@@ -297,7 +297,15 @@ public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAd
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            movieTrailersAdapter.changeCursor(data);
+            if (data != null && data.getCount() == 0) {
+                trailersRecyclerView.setVisibility(View.GONE);
+                noTrailersView.setVisibility(View.VISIBLE);
+            } else {
+                noTrailersView.setVisibility(View.GONE);
+                trailersRecyclerView.setVisibility(View.VISIBLE);
+                movieTrailersAdapter.changeCursor(data);
+
+            }
         }
 
         @Override
@@ -316,7 +324,15 @@ public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAd
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            reviewsAdapter.changeCursor(data);
+            if (data != null && data.getCount() == 0) {
+                reviewsRecyclerView.setVisibility(View.GONE);
+                noReviewsView.setVisibility(View.VISIBLE);
+            } else {
+                noReviewsView.setVisibility(View.GONE);
+                reviewsRecyclerView.setVisibility(View.VISIBLE);
+                reviewsAdapter.changeCursor(data);
+
+            }
         }
 
         @Override
@@ -327,12 +343,14 @@ public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAd
 
     @Override
     public void updateReviewsViewForEmptyData() {
-        noReviewsView.setVisibility(View.VISIBLE);
+        // hotfix
+//        noReviewsView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void updateTrailersViewForEmptyData() {
-        noTrailersView.setVisibility(View.VISIBLE);
+        // hotfix
+//        noTrailersView.setVisibility(View.VISIBLE);
     }
 }
 

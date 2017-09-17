@@ -34,7 +34,6 @@ public class FavoritesGridFragmnet extends AbstractMoviesGridFragment {
 
     @Override
     protected void onRefreshAction() {
-        // do nothing
         swipeRefreshLayout.setRefreshing(false);
     }
 

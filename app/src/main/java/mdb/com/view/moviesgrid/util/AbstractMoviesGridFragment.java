@@ -157,5 +157,5 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     public GridLayoutManager getGridLayoutManager() {
         return gridLayoutManager;
     }
-
+    
 }
