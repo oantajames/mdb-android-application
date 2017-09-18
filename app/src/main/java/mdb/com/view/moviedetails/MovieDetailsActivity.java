@@ -147,6 +147,7 @@ public class MovieDetailsActivity extends BaseActivity implements MovieReviewsAd
         movieTrailersAdapter = new MovieTrailersAdapter(null, this);
         reviewsAdapter = new MovieReviewsAdapter(null, this);
         bindViews(movieEntity);
+        scrollView.smoothScrollTo(0, 0);
     }
 
 

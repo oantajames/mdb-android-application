@@ -1,8 +1,8 @@
 package mdb.com.view.moviesgrid.util;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
@@ -17,7 +17,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mdb.com.R;
@@ -57,10 +56,10 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnItemSelectedListener) {
-            onItemSelectedListener = (OnItemSelectedListener) context;
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof OnItemSelectedListener) {
+            onItemSelectedListener = (OnItemSelectedListener) activity;
         } else {
             throw new IllegalStateException("The activity must implement " +
                     OnItemSelectedListener.class.getSimpleName() + " interface.");
@@ -157,5 +156,5 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     public GridLayoutManager getGridLayoutManager() {
         return gridLayoutManager;
     }
-    
+
 }
