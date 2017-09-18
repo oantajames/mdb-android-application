@@ -20,9 +20,6 @@ import javax.inject.Named;
  */
 
 public class MdbApplication extends Application {
-    //todo - add adaptive icon
-    //todo - add transitions
-    // todo - add recyclerview animations
 
     private ApplicationComponent applicationComponent;
 

@@ -17,8 +17,8 @@
     <string name="no_trailers">No trailers</string>
     <string name="trailers">TRAILERS</string>
     <string name="reviews">REVIEWS</string>
-    <string name="to_add_a_movie_to_the_favorites_n_tap_the_heart_icon_from_the_movie_item">To add a movie to the favorites,\n tap the heart icon from the movie item.</string>
-    <string name="no_favorite_movies">No favorite movies</string>
+    <string name="to_add_a_movie_to_the_favorites_n_tap_the_heart_icon_from_the_movie_item">If you want add a movie to the favorites,\n tap the heart icon from the movie item.</string>
+    <string name="no_favorite_movies">No movies</string>
 
 
 </resources>

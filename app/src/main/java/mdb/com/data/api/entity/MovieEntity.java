@@ -55,9 +55,7 @@ public class MovieEntity implements Parcelable {
     @Expose
     public String releaseDate;
 
-    public MovieEntity(int id, String title) {
-        this.id = id;
-        this.title = title;
+    public MovieEntity() {
     }
 
     public MovieEntity(Cursor cursor) {
@@ -184,9 +182,7 @@ public class MovieEntity implements Parcelable {
     }
 
     public static MovieEntity fromCursor(Cursor cursor) {
-        int id = Math.toIntExact(cursor.getLong(cursor.getColumnIndex(MovieEntry._ID)));
-        String title = cursor.getString(cursor.getColumnIndex(MovieEntry.TITLE));
-        MovieEntity movie = new MovieEntity(id, title);
+        MovieEntity movie = new MovieEntity();
         movie.setId(getColumnInt(cursor, MovieEntry._ID));
         movie.setTitle(getColumnString(cursor, MovieEntry.TITLE));
         movie.setPosterPath(getColumnString(cursor, MovieEntry.POSTER_PATH));

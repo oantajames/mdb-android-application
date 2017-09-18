@@ -8,8 +8,9 @@
     android:layout_height="match_parent"
     android:background="@color/color_black"
     android:clickable="true"
-    android:fillViewport="true">
-
+    android:fillViewport="true"
+    android:focusable="true">
+<!--todo scrollview bug-->
     <LinearLayout
         android:id="@+id/main_background"
         android:layout_width="match_parent"
@@ -56,7 +57,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/header"
-                android:layout_alignParentStart="true"/>
+                android:layout_alignParentStart="true"
+                android:focusable="false"/>
 
 
         </RelativeLayout>
@@ -98,6 +100,7 @@
                     android:layout_marginRight="13dp"
                     android:adjustViewBounds="true"
                     android:background="@android:color/transparent"
+                    android:focusable="false"
                     android:scaleType="centerCrop"/>
 
             </uk.co.deanwild.flowtextview.FlowTextView>
@@ -105,13 +108,16 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="13dp"
+            android:focusable="false"
             android:text="@string/trailers"
             android:textColor="@android:color/white"
             android:textSize="25sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            tools:text="@string/trailers"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -122,6 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:focusable="false"
                 android:padding="13dp"
                 android:text="@string/no_trailers"
                 android:textColor="@color/color_mdb_green"
@@ -130,14 +137,15 @@
                 android:visibility="gone"/>
 
 
-            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/trailer_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="135dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="13dp"
-                android:layout_marginRight="13dp"/>
+                android:layout_marginRight="13dp"
+                android:focusable="false"/>
 
 
         </RelativeLayout>
@@ -146,6 +154,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="13dp"
+            android:focusable="false"
             android:text="@string/reviews"
             android:textColor="@android:color/white"
             android:textSize="25sp"
@@ -160,6 +169,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:focusable="false"
                 android:padding="13dp"
                 android:text="@string/no_reviews"
                 android:textColor="@color/color_mdb_green"
@@ -167,7 +177,7 @@
                 android:textStyle="bold"
                 android:visibility="gone"/>
 
-            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/reviews_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
