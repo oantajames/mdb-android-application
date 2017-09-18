@@ -42,12 +42,6 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         }
     }
 
-    private void checkCursorIfEmpty(Cursor cursor) {
-        if (cursor != null && cursor.getCount() == 0) {
-            onEmptyCursor();
-        }
-    }
-
     public Cursor getCursor() {
         return mCursor;
     }
@@ -93,10 +87,16 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
      * closed.
      */
     public void changeCursor(Cursor cursor) {
-        checkCursorIfEmpty(cursor);
+        checkCursorIfEmpty(mCursor);
         Cursor old = swapCursor(cursor);
         if (old != null) {
             old.close();
+        }
+    }
+
+    private void checkCursorIfEmpty(Cursor cursor) {
+        if (cursor != null && cursor.getCount() == 0) {
+            onEmptyCursor();
         }
     }
 

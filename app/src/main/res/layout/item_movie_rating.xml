@@ -23,7 +23,7 @@
             android:text="2015"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
 
         <ImageView
@@ -34,7 +34,7 @@
             android:layout_gravity="center_vertical|end"
             android:layout_marginRight="5dp"
             android:layout_toStartOf="@+id/movie_rating"
-            android:background="@drawable/star" />
+            android:background="@drawable/star"/>
 
         <TextView
             android:id="@+id/movie_rating"
@@ -46,7 +46,7 @@
             android:gravity="end"
             android:text="8.1"
             android:textColor="@android:color/white"
-            android:textSize="30sp" />
+            android:textSize="30sp"/>
 
     </RelativeLayout>
 
@@ -54,11 +54,14 @@
         android:id="@+id/movie_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="left"
+        android:maxLines="2"
         android:paddingTop="15dp"
         android:textColor="@android:color/white"
         android:textSize="30sp"
         android:textStyle="bold"
-        tools:text="Spider-Man :Homecomming" />
+        tools:text="This is a very very very very very very very very very very very"/>
 
 
 </LinearLayout>

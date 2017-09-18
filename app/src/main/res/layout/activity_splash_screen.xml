@@ -11,7 +11,7 @@
         android:layout_height="200dp"
         android:layout_centerInParent="true"
         android:adjustViewBounds="true"
-        android:src="@drawable/mdb_logo"/>
+        android:src="@drawable/ic_mdb_logo"/>
 
     <ImageView
         android:layout_width="130dp"
