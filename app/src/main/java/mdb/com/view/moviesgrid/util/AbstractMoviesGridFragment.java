@@ -24,6 +24,8 @@ import mdb.com.R;
 import mdb.com.view.base.BaseFragment;
 import mdb.com.view.moviesgrid.MoviesGridAdapter;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+
 
 public abstract class AbstractMoviesGridFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>,
         OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -52,7 +54,7 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        getLoaderManager().initLoader(LOADER_ID, savedInstanceState, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -104,7 +106,12 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        int columns = 2;
+        int columns;
+        if (getActivity().getResources().getConfiguration().orientation != ORIENTATION_LANDSCAPE) {
+            columns = 2;
+        } else {
+            columns = 4;
+        }
         gridLayoutManager = new GridLayoutManager(getActivity(), columns);
         recyclerView.setLayoutManager(gridLayoutManager);
         onMoviesGridInitialisationFinished();
@@ -157,5 +164,5 @@ public abstract class AbstractMoviesGridFragment extends BaseFragment implements
     public GridLayoutManager getGridLayoutManager() {
         return gridLayoutManager;
     }
-    
+
 }
