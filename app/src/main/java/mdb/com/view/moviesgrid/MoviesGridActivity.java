@@ -51,8 +51,6 @@ public class MoviesGridActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        inject();
-
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
@@ -63,6 +61,12 @@ public class MoviesGridActivity extends BaseActivity
         initTabIcons();
         //default position
         viewPager.setCurrentItem(1);
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        inject();
     }
 
     @Override
