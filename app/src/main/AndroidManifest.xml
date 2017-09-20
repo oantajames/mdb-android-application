@@ -27,12 +27,12 @@
 
         <activity
             android:name="mdb.com.view.moviesgrid.MoviesGridActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="sensor"
             android:windowSoftInputMode="stateHidden"/>
 
         <activity
             android:name="mdb.com.view.moviedetails.MovieDetailsActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="sensor"/>
 
         <provider
             android:name=".data.db.MoviesProvider"
