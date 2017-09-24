@@ -68,7 +68,7 @@ public class MoviesRepository {
     }
 
     private void callDiscoverMovies(String sort, @Nullable Integer page) {
-        service.queryMovies(sort, page)
+        service.getMoviesBySortType(sort, page)
                 .doOnNext((discoverMoviesResponse) -> clearMoviesSortTableIfNeeded(discoverMoviesResponse, sort))
                 .doOnNext(this::logResponse)
                 .map(movieEntityQueryMoviesResponse -> getMoviesWithNoAdult(movieEntityQueryMoviesResponse.getResults()))
