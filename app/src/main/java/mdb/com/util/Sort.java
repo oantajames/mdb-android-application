@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 public enum Sort {
 
-    MOST_POPULAR("popularity.desc"),
-    TOP_RATED("vote_average.desc"),
+    MOST_POPULAR("popular"),
+    TOP_RATED("top_rated"),
     FAVORITES("favorites");
 
     private String value;
