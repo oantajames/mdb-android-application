@@ -23,4 +23,8 @@ public interface MoviesService {
 
     @GET("discover/movie")
     Observable<QueryMoviesResponse<MovieEntity>> queryMovies(@Query("sort_by") String sortBy, @Query("page") Integer page);
+
+    @GET("movie/{sort}")
+    Observable<QueryMoviesResponse<MovieEntity>> getMoviesBySortType(@Path("sort") String sort, @Query("page") Integer page);
+
 }
